@@ -165,15 +165,15 @@ details[open] > summary .chev { transform: rotate(45deg); }
 .row .nm { flex: 1; font-size: 14.5px; min-width: 0; overflow-wrap: anywhere; }
 .row.on { background: #f3f9f4; border-radius: 8px; }
 .row.on .nm { font-weight: 700; color: var(--green-deep); }
-.qty { width: 74px; text-align: center; padding: 8px 4px; }
-.qty::-webkit-outer-spin-button, .qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.qty { -moz-appearance: textfield; }
-.unit { width: 78px; padding: 8px 6px; }
+.row .qty { width: 74px; flex: none; text-align: center; padding: 8px 4px; }
+.row .qty::-webkit-outer-spin-button, .row .qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.row .qty { -moz-appearance: textfield; }
+.row .unit { width: 82px; flex: none; padding: 8px 6px; }
 
 @media (max-width: 380px) {
   .row .nm { font-size: 13.5px; }
-  .qty { width: 60px; }
-  .unit { width: 66px; }
+  .row .qty { width: 60px; }
+  .row .unit { width: 72px; }
   .rows { padding: 0 8px 10px; }
 }
 

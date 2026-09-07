@@ -13,7 +13,7 @@ const SUPABASE_URL = "https://swnkzxcrppvhsgcphnje.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_kgUc23FZ8dae85E4-on_vg_oDRYOkJO";
 
 // 後台管理員密碼（要換密碼改這裡的數字）
-const ADMIN_PASSWORD = "5888";
+const ADMIN_PASSWORD = "1200917";
 
 // 全部的填單單位（分社代號）
 const UNITS = [

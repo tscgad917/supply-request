@@ -21,8 +21,8 @@
     color: var(--ink-soft); cursor: pointer;
   }
   .tab.active { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
-  .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  @media (max-width: 640px) { .filters { grid-template-columns: 1fr 1fr; } }
+  .filters { display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 10px; }
+  @media (max-width: 640px) { .filters { grid-template-columns: 1fr; } }
   .rec { border-top: 1px solid var(--line); }
   .rec:first-child { border-top: none; }
   .rec > summary {
@@ -43,21 +43,41 @@
   .detail ul { margin: 0; padding-left: 20px; font-size: 14px; }
   .detail li { padding: 2px 0; }
   .detail .note { background: #fdf6ec; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; margin-top: 10px; white-space: pre-wrap; }
-  .actions { margin-top: 12px; display: flex; gap: 8px; }
+  .actions { margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .tblwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { border-collapse: collapse; font-size: 13px; min-width: 100%; }
   th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: center; white-space: nowrap; }
-  th { background: var(--tint); color: var(--green-deep); font-weight: 700; position: sticky; top: 0; }
-  td.item { text-align: left; position: sticky; left: 0; background: #fff; font-weight: 500; }
-  th.item { text-align: left; position: sticky; left: 0; z-index: 2; }
+  th { background: var(--tint); color: var(--green-deep); font-weight: 700; }
+  td.item, th.item { text-align: left; position: sticky; left: 0; background: #fff; font-weight: 500; }
+  th.item { background: var(--tint); z-index: 2; }
   td.total, th.total { background: #f3f9f4; font-weight: 700; }
   .login { max-width: 340px; margin: 60px auto; }
+
+  /* 批次管理 */
+  .brow { border-top: 1px solid var(--line); padding: 14px 16px; }
+  .brow:first-child { border-top: none; }
+  .bhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bcode { font-size: 15px; font-weight: 700; color: var(--green-deep); }
+  .pill { font-size: 12px; border-radius: 999px; padding: 2px 10px; background: var(--tint); color: var(--green-deep); }
+  .pill.open { background: #e4f2e8; color: #2f6b45; }
+  .pill.closed { background: #f1f2f0; color: #8a8f87; }
+  .pill.urgent { background: #fdf1e2; color: #8a6a30; }
+  .bstat { font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
+  .bstat b { color: var(--green-deep); }
+  .missing { color: var(--warn); }
+  .unitgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; margin-top: 8px; }
+  .unitgrid label {
+    display: flex; align-items: center; gap: 5px; font-size: 13px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; cursor: pointer;
+  }
+  .unitgrid label.on { background: var(--tint); border-color: var(--green); color: var(--green-deep); font-weight: 700; }
+  .unitgrid input { width: auto; margin: 0; }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <img src="icons/icon-192.png" alt="">
+  <img src="data:image/png;base64,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" alt="" class="logo">
   <div>
     <h1>後台管理</h1>
     <p>傳票耗材申請</p>
@@ -84,22 +104,23 @@
   <div id="setupNotice" class="notice" hidden>
     還沒接上資料庫。請打開 <code>config.js</code>，把 Supabase 的網址和 anon key 貼進去。
   </div>
+  <div id="noOpen" class="notice" hidden>
+    現在沒有正在收單的批次，分社進去會看到「目前沒有正在收單的批次」。到下面的<b>批次管理</b>開一個。
+  </div>
 
   <div class="tabs">
     <div class="tab active" data-tab="list">申請紀錄</div>
     <div class="tab" data-tab="sum">彙總表</div>
+    <div class="tab" data-tab="batch">批次管理</div>
   </div>
 
-  <section class="card">
+  <!-- 篩選 -->
+  <section class="card" id="filterCard">
     <div class="body">
       <div class="filters">
         <div>
-          <label class="f" for="fFrom">起始日期</label>
-          <input type="date" id="fFrom">
-        </div>
-        <div>
-          <label class="f" for="fTo">結束日期</label>
-          <input type="date" id="fTo">
+          <label class="f" for="fBatch">批次</label>
+          <select id="fBatch"></select>
         </div>
         <div>
           <label class="f" for="fUnit">單位</label>
@@ -111,9 +132,7 @@
         </div>
       </div>
       <div class="actions">
-        <button class="small" id="reloadBtn">查詢</button>
-        <button class="small ghost" id="thisMonthBtn">本月</button>
-        <button class="small ghost" id="allBtn">全部</button>
+        <button class="small" id="reloadBtn">重新整理</button>
         <span style="flex:1"></span>
         <button class="small ghost" id="exportBtn">匯出 CSV</button>
       </div>
@@ -129,10 +148,49 @@
   <section class="card" id="sumPane" hidden>
     <div class="body">
       <h2 class="sec">項目彙總</h2>
-      <p class="sub">依上方日期與單位條件統計，橫向為分社，只顯示有申請的項目。</p>
+      <p class="sub">橫向為分社、直向為項目，只顯示有申請的項目。</p>
       <div class="tblwrap" id="sumTable"></div>
       <div id="sumNotes"></div>
     </div>
+  </section>
+
+  <!-- 批次管理 -->
+  <section id="batchPane" hidden>
+    <section class="card">
+      <div class="body">
+        <h2 class="sec">開一次新收單</h2>
+        <p class="sub">選路線會自動勾好那條線的分社，還可以手動加減。</p>
+
+        <div class="grid2">
+          <div class="field">
+            <label class="f" for="nRoute">路線</label>
+            <select id="nRoute"></select>
+          </div>
+          <div class="field">
+            <label class="f" for="nDeadline">截止日期（含當天）</label>
+            <input type="date" id="nDeadline">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="f" for="nCode">批次代號</label>
+          <input type="text" id="nCode" placeholder="會依截止日自動產生，例如 1150929">
+        </div>
+
+        <div class="field">
+          <label class="f">這批要收哪些單位</label>
+          <div class="unitgrid" id="nUnits"></div>
+        </div>
+
+        <div class="actions">
+          <button id="createBatchBtn">建立批次</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="batchList"><div class="empty">載入中…</div></div>
+    </section>
   </section>
 </div>
 
@@ -147,6 +205,7 @@
 
   function $(id) { return document.getElementById(id); }
   var records = [];
+  var batches = [];
 
   var configured =
     SUPABASE_URL.indexOf("supabase.co") > -1 &&
@@ -160,9 +219,8 @@
     t.textContent = msg;
     t.className = "toast show" + (bad ? " bad" : "");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+    toastTimer = setTimeout(function () { t.className = "toast"; }, 2800);
   }
-
   function sess(k, v) {
     try {
       if (v === undefined) return sessionStorage.getItem(k);
@@ -170,69 +228,106 @@
     } catch (e) {}
     return null;
   }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function todayISO() { return iso(new Date()); }
+  function rocDate(s) { return (parseInt(s.slice(0, 4), 10) - 1911) + "/" + s.slice(5, 7) + "/" + s.slice(8, 10); }
+  function rocCode(s) { return String(parseInt(s.slice(0, 4), 10) - 1911) + s.slice(5, 7) + s.slice(8, 10); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
 
   /* ---------- 登入 ---------- */
   function unlock() {
     $("loginView").hidden = true;
     $("mainView").hidden = false;
-    if (!configured) { $("setupNotice").hidden = false; render(); return; }
-    thisMonth();
+    if (!configured) { $("setupNotice").hidden = false; return; }
     load();
   }
-
   $("loginBtn").addEventListener("click", function () {
-    if ($("pw").value === ADMIN_PASSWORD) {
-      sess("supply-admin", "1");
-      unlock();
-    } else {
-      toast("密碼不對", true);
-      $("pw").select();
-    }
+    if ($("pw").value === ADMIN_PASSWORD) { sess("supply-admin", "1"); unlock(); }
+    else { toast("密碼不對", true); $("pw").select(); }
   });
-  $("pw").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") $("loginBtn").click();
-  });
+  $("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") $("loginBtn").click(); });
   if (sess("supply-admin") === "1") unlock();
 
-  /* ---------- 篩選器 ---------- */
+  /* ---------- 篩選器與新批次表單 ---------- */
   UNITS.forEach(function (u) {
     var o = document.createElement("option");
     o.value = u; o.textContent = u;
     $("fUnit").appendChild(o);
+
+    var lab = document.createElement("label");
+    var cb = document.createElement("input");
+    cb.type = "checkbox"; cb.value = u;
+    cb.addEventListener("change", function () { lab.classList.toggle("on", cb.checked); });
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(u));
+    $("nUnits").appendChild(lab);
   });
 
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  ROUTES.forEach(function (r, i) {
+    var o = document.createElement("option");
+    o.value = i; o.textContent = r.name;
+    $("nRoute").appendChild(o);
+  });
 
-  function thisMonth() {
-    var t = new Date();
-    $("fFrom").value = iso(new Date(t.getFullYear(), t.getMonth(), 1));
-    $("fTo").value = iso(new Date(t.getFullYear(), t.getMonth() + 1, 0));
+  function applyRoute() {
+    var r = ROUTES[Number($("nRoute").value) || 0];
+    $("nUnits").querySelectorAll("label").forEach(function (lab) {
+      var cb = lab.querySelector("input");
+      cb.checked = r.units.indexOf(cb.value) > -1;
+      lab.classList.toggle("on", cb.checked);
+    });
   }
-  $("thisMonthBtn").addEventListener("click", function () { thisMonth(); load(); });
-  $("allBtn").addEventListener("click", function () {
-    $("fFrom").value = ""; $("fTo").value = ""; $("fUnit").value = ""; $("fKey").value = "";
-    load();
-  });
-  $("reloadBtn").addEventListener("click", load);
-  $("fKey").addEventListener("input", render);
+  $("nRoute").addEventListener("change", applyRoute);
+  applyRoute();
 
-  /* ---------- 讀取資料 ---------- */
+  $("nDeadline").addEventListener("change", function () {
+    if (this.value) $("nCode").value = rocCode(this.value);
+  });
+
+  /* ---------- 讀取 ---------- */
   async function load() {
-    if (!configured) return;
+    var b = await db.from("supply_batches").select("*").order("deadline", { ascending: false });
+    if (b.error) { toast("讀取批次失敗：" + b.error.message, true); return; }
+    batches = b.data || [];
+
+    var prev = $("fBatch").value;
+    $("fBatch").innerHTML = '<option value="">全部批次</option>';
+    batches.forEach(function (x) {
+      var o = document.createElement("option");
+      o.value = x.code;
+      o.textContent = x.code + "　" + (x.route || "") + (x.deadline >= todayISO() ? "　收單中" : "");
+      $("fBatch").appendChild(o);
+    });
+    var open = batches.filter(function (x) { return x.deadline >= todayISO(); });
+    $("noOpen").hidden = open.length > 0;
+    $("fBatch").value = prev || (open.length ? open[open.length - 1].code : "");
+
+    await loadRecords();
+    renderBatches();
+  }
+
+  async function loadRecords() {
     $("recList").innerHTML = '<div class="empty">載入中…</div>';
-    var q = db.from("supply_requests").select("*").order("apply_date", { ascending: false }).order("created_at", { ascending: false });
-    if ($("fFrom").value) q = q.gte("apply_date", $("fFrom").value);
-    if ($("fTo").value) q = q.lte("apply_date", $("fTo").value);
+    var q = db.from("supply_requests").select("*")
+      .order("batch_code", { ascending: false })
+      .order("unit_code", { ascending: true });
+    if ($("fBatch").value) q = q.eq("batch_code", $("fBatch").value);
     if ($("fUnit").value) q = q.eq("unit_code", $("fUnit").value);
     var res = await q;
-    if (res.error) {
-      $("recList").innerHTML = '<div class="empty">讀取失敗：' + res.error.message + "</div>";
-      return;
-    }
+    if (res.error) { $("recList").innerHTML = '<div class="empty">讀取失敗：' + esc(res.error.message) + "</div>"; return; }
     records = res.data || [];
     render();
   }
+
+  $("reloadBtn").addEventListener("click", load);
+  $("fBatch").addEventListener("change", loadRecords);
+  $("fUnit").addEventListener("change", loadRecords);
+  $("fKey").addEventListener("input", render);
 
   function filtered() {
     var k = $("fKey").value.trim();
@@ -244,35 +339,32 @@
     });
   }
 
-  /* ---------- 畫面 ---------- */
-  function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
-    });
-  }
-
   function render() {
     var rows = filtered();
     renderList(rows);
     renderSummary(rows);
   }
 
+  /* ---------- 申請紀錄 ---------- */
   function renderList(rows) {
     var box = $("recList");
     if (!rows.length) {
-      box.innerHTML = '<div class="empty">這個範圍沒有申請單。<br>換個日期或按「全部」看看。</div>';
+      box.innerHTML = '<div class="empty">這個批次還沒有人交單。</div>';
       return;
     }
     box.innerHTML = rows.map(function (r) {
       var items = (r.items || []).map(function (i) {
         return "<li>" + esc(i.name) + "　<b>" + esc(i.qty) + esc(i.unit) + "</b></li>";
       }).join("");
+      var t = new Date(r.updated_at || r.created_at);
       return (
         '<details class="rec">' +
         "<summary>" +
         '<span class="badge">' + esc(r.unit_code) + "</span>" +
         '<span class="meta"><span class="l1">' + esc(r.applicant) + "</span>" +
-        '<div class="l2">' + esc(r.apply_date) + "　" + esc(r.period || "") + "</div></span>" +
+        '<div class="l2">' + esc(r.batch_code) + "　最後修改 " +
+        pad(t.getMonth() + 1) + "/" + pad(t.getDate()) + " " + pad(t.getHours()) + ":" + pad(t.getMinutes()) +
+        "</div></span>" +
         '<span class="n-items">' + (r.items || []).length + " 項</span>" +
         "</summary>" +
         '<div class="detail">' +
@@ -289,15 +381,14 @@
         var res = await db.from("supply_requests").delete().eq("id", b.dataset.del);
         if (res.error) { toast("刪除失敗：" + res.error.message, true); return; }
         toast("已刪除");
-        load();
+        loadRecords();
       });
     });
   }
 
+  /* ---------- 彙總 ---------- */
   function summarize(rows) {
-    var unitsUsed = [];
-    var map = {};   // 項目 → { 單位: 數量 }
-    var unitLabel = {}; // 項目 → 計量單位
+    var unitsUsed = [], map = {}, unitLabel = {};
     rows.forEach(function (r) {
       if (unitsUsed.indexOf(r.unit_code) === -1) unitsUsed.push(r.unit_code);
       (r.items || []).forEach(function (i) {
@@ -308,16 +399,14 @@
     });
     unitsUsed.sort();
     var names = ALL_ITEM_NAMES.filter(function (n) { return map[n]; });
-    Object.keys(map).forEach(function (n) {
-      if (names.indexOf(n) === -1) names.push(n);
-    });
+    Object.keys(map).forEach(function (n) { if (names.indexOf(n) === -1) names.push(n); });
     return { unitsUsed: unitsUsed, names: names, map: map, unitLabel: unitLabel };
   }
 
   function renderSummary(rows) {
     var s = summarize(rows);
     if (!s.names.length) {
-      $("sumTable").innerHTML = '<div class="empty">這個範圍沒有可統計的項目。</div>';
+      $("sumTable").innerHTML = '<div class="empty">這個批次沒有可統計的項目。</div>';
       $("sumNotes").innerHTML = "";
       return;
     }
@@ -341,19 +430,120 @@
     $("sumNotes").innerHTML = notes.length
       ? "<h2 class='sec' style='margin-top:20px'>其他項目與備註</h2>" +
         notes.map(function (r) {
-          return '<div class="note">' + esc(r.unit_code) + "　" + esc(r.applicant) + "：" + esc(r.note) + "</div>";
+          return '<div class="note" style="background:#fdf6ec;border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:8px">' +
+                 esc(r.unit_code) + "　" + esc(r.applicant) + "：" + esc(r.note) + "</div>";
         }).join("")
       : "";
   }
+
+  /* ---------- 批次管理 ---------- */
+  function renderBatches() {
+    var box = $("batchList");
+    if (!batches.length) {
+      box.innerHTML = '<div class="empty">還沒有任何批次。用上面的表單開第一個。</div>';
+      return;
+    }
+    box.innerHTML = batches.map(function (b) {
+      var open = b.deadline >= todayISO();
+      var left = Math.round((new Date(b.deadline + "T00:00:00") - new Date(todayISO() + "T00:00:00")) / 86400000);
+      var cls = !open ? "closed" : (left <= 1 ? "urgent" : "open");
+      var label = !open ? "已截止" : (left === 0 ? "今天截止" : "收單中，剩 " + left + " 天");
+      var us = b.units || [];
+      var done = [], missing = [];
+      us.forEach(function (u) {
+        (window.__submitted && window.__submitted[b.code] && window.__submitted[b.code][u] ? done : missing).push(u);
+      });
+      return (
+        '<div class="brow">' +
+        '<div class="bhead"><span class="bcode">' + esc(b.code) + "</span>" +
+        '<span class="pill ' + cls + '">' + label + "</span>" +
+        '<span class="pill">' + esc(b.route || "自訂") + "</span>" +
+        '<span class="pill">截止 ' + rocDate(b.deadline) + "</span></div>" +
+        '<div class="bstat">已交 <b>' + done.length + " / " + us.length + "</b>" +
+        (missing.length ? '　未交：<span class="missing">' + missing.join("、") + "</span>" : "　全部交齊了") +
+        "</div>" +
+        '<div class="actions">' +
+        '<button class="small ghost" data-view="' + esc(b.code) + '">看這批的單</button>' +
+        '<button class="small ghost" data-extend="' + esc(b.id) + '">改截止日</button>' +
+        '<button class="small danger" data-delb="' + esc(b.id) + '">刪除批次</button>' +
+        "</div></div>"
+      );
+    }).join("");
+
+    box.querySelectorAll("[data-view]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        $("fBatch").value = btn.dataset.view;
+        document.querySelectorAll(".tab")[0].click();
+        loadRecords();
+      });
+    });
+    box.querySelectorAll("[data-extend]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var b = batches.filter(function (x) { return x.id === btn.dataset.extend; })[0];
+        var v = prompt("新的截止日期（格式 2026-09-29）", b.deadline);
+        if (!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+        var res = await db.from("supply_batches").update({ deadline: v }).eq("id", b.id);
+        if (res.error) { toast("修改失敗：" + res.error.message, true); return; }
+        toast("截止日已改成 " + rocDate(v));
+        load();
+      });
+    });
+    box.querySelectorAll("[data-delb]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        if (!confirm("刪除批次不會刪掉已經交的單，但那些單會找不到批次。確定嗎？")) return;
+        var res = await db.from("supply_batches").delete().eq("id", btn.dataset.delb);
+        if (res.error) { toast("刪除失敗：" + res.error.message, true); return; }
+        toast("批次已刪除");
+        load();
+      });
+    });
+  }
+
+  async function loadSubmitted() {
+    var res = await db.from("supply_requests").select("batch_code,unit_code");
+    var m = {};
+    (res.data || []).forEach(function (r) {
+      if (!m[r.batch_code]) m[r.batch_code] = {};
+      m[r.batch_code][r.unit_code] = true;
+    });
+    window.__submitted = m;
+  }
+
+  $("createBatchBtn").addEventListener("click", async function () {
+    var deadline = $("nDeadline").value;
+    if (!deadline) { toast("請選截止日期", true); return; }
+    var code = $("nCode").value.trim() || rocCode(deadline);
+    var picked = [];
+    $("nUnits").querySelectorAll("input:checked").forEach(function (cb) { picked.push(cb.value); });
+    if (!picked.length) { toast("至少要勾一個單位", true); return; }
+
+    var res = await db.from("supply_batches").insert({
+      code: code,
+      route: ROUTES[Number($("nRoute").value) || 0].name,
+      deadline: deadline,
+      units: picked,
+    });
+    if (res.error) {
+      toast(res.error.code === "23505" ? "批次代號 " + code + " 已經存在" : "建立失敗：" + res.error.message, true);
+      return;
+    }
+    toast("批次 " + code + " 開好了，分社現在可以填了");
+    $("nDeadline").value = ""; $("nCode").value = "";
+    await loadSubmitted();
+    load();
+  });
 
   /* ---------- 分頁切換 ---------- */
   document.querySelectorAll(".tab").forEach(function (t) {
     t.addEventListener("click", function () {
       document.querySelectorAll(".tab").forEach(function (x) { x.classList.remove("active"); });
       t.classList.add("active");
-      var list = t.dataset.tab === "list";
-      $("listPane").hidden = !list;
-      $("sumPane").hidden = list;
+      var v = t.dataset.tab;
+      $("listPane").hidden = v !== "list";
+      $("sumPane").hidden = v !== "sum";
+      $("batchPane").hidden = v !== "batch";
+      $("filterCard").hidden = v === "batch";
+      if (v === "batch") { loadSubmitted().then(renderBatches); }
     });
   });
 
@@ -367,15 +557,13 @@
     var rows = filtered();
     if (!rows.length) { toast("沒有資料可匯出", true); return; }
     var isSummary = !$("sumPane").hidden;
-    var lines = [];
-    var fname;
+    var lines = [], fname;
 
     if (isSummary) {
       var s = summarize(rows);
       lines.push(["項目"].concat(s.unitsUsed).concat(["合計"]).map(csvCell).join(","));
       s.names.forEach(function (n) {
-        var tot = 0;
-        var line = [n];
+        var tot = 0, line = [n];
         s.unitsUsed.forEach(function (u) {
           var v = s.map[n][u];
           if (v) tot += v;
@@ -386,23 +574,24 @@
       });
       fname = "耗材彙總表";
     } else {
-      lines.push(["申請日期", "半月", "單位", "填單人", "項目", "數量", "單位量詞", "備註"].join(","));
+      lines.push(["批次", "單位", "填單人", "填單日期", "項目", "數量", "量詞", "備註"].join(","));
       rows.forEach(function (r) {
         if ((r.items || []).length) {
           r.items.forEach(function (i) {
-            lines.push([r.apply_date, r.period, r.unit_code, r.applicant, i.name, i.qty, i.unit, r.note || ""].map(csvCell).join(","));
+            lines.push([r.batch_code, r.unit_code, r.applicant, r.apply_date, i.name, i.qty, i.unit, r.note || ""].map(csvCell).join(","));
           });
         } else {
-          lines.push([r.apply_date, r.period, r.unit_code, r.applicant, "", "", "", r.note || ""].map(csvCell).join(","));
+          lines.push([r.batch_code, r.unit_code, r.applicant, r.apply_date, "", "", "", r.note || ""].map(csvCell).join(","));
         }
       });
       fname = "耗材申請明細";
     }
 
+    var tag = $("fBatch").value || todayISO();
     var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = fname + "_" + iso(new Date()) + ".csv";
+    a.download = fname + "_" + tag + ".csv";
     a.click();
     URL.revokeObjectURL(a.href);
     toast("已匯出，用 Excel 打開就好");

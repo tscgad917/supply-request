@@ -205,22 +205,28 @@ $("applyDate").value = rocDate(todayISO());
       nm.className = "nm";
       nm.textContent = it.n;
 
-      var qty = document.createElement("input");
-      qty.type = "number";
-      qty.className = "qty";
-      qty.min = "0";
-      qty.step = "1";
-      qty.inputMode = "numeric";
-      qty.placeholder = "—";
-      qty.dataset.name = it.n;
-      qty.dataset.unit = it.u;
-      qty.setAttribute("aria-label", it.n + " 數量");
+var qty = document.createElement("select");
+qty.className = "qty";
+
+var maxQty = Number(it.max || 10);
+
+for (var i = 0; i <= maxQty; i++) {
+  var opt = document.createElement("option");
+  opt.value = i;
+  opt.textContent = i;
+  qty.appendChild(opt);
+}
+
+qty.value = "0";
+qty.dataset.name = it.n;
+qty.dataset.unit = it.u;
+qty.setAttribute("aria-label", it.n + " 數量");
 
       var un = document.createElement("span");
       un.className = "unit";
       un.textContent = it.u;
 
-      qty.addEventListener("input", function () {
+      qty.addEventListener("change", function () {
         row.classList.toggle("on", Number(qty.value) > 0);
         refreshCounts();
       });

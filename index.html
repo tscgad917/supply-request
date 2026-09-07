@@ -105,16 +105,35 @@
 
   function $(id) { return document.getElementById(id); }
 
-  var configured =
-    SUPABASE_URL.indexOf("supabase.co") > -1 &&
-    SUPABASE_URL.indexOf("請貼上") === -1 &&
-    SUPABASE_ANON_KEY.indexOf("請貼上") === -1;
+  function looksSet(v) {
+    return typeof v === "string" && v.trim() !== "" && v.indexOf("請貼上") === -1;
+  }
+  function peek(v) {
+    if (typeof v !== "string" || !v.trim()) return "（空白）";
+    if (v.indexOf("請貼上") > -1) return "（還是原本的預設文字）";
+    return v.length > 40 ? v.slice(0, 30) + "…" + v.slice(-6) : v;
+  }
+  var urlOK = looksSet(SUPABASE_URL) && /^https?:\/\//.test(SUPABASE_URL);
+  var keyOK = looksSet(SUPABASE_ANON_KEY);
+  var configured = urlOK && keyOK;
+
+  function showSetupNotice(el) {
+    el.hidden = false;
+    el.innerHTML =
+      "<b>還沒接上資料庫。</b>瀏覽器現在讀到的 <code>config.js</code> 內容是：" +
+      "<div style=\"margin-top:8px;line-height:1.9\">" +
+      "網址：<code>" + peek(SUPABASE_URL) + "</code> " + (urlOK ? "✓" : "✗ 要用 https:// 開頭的完整網址") +
+      "<br>金鑰：<code>" + peek(SUPABASE_ANON_KEY) + "</code> " + (keyOK ? "✓" : "✗") +
+      "</div>" +
+      "<div style=\"margin-top:8px\">如果上面顯示的就是你貼好的值，那是瀏覽器抓到舊檔：" +
+      "電腦按 Ctrl+Shift+R（Mac 是 Cmd+Shift+R）強制重整，手機把桌面圖示刪掉重加。</div>";
+  }
 
   var db = null;
   if (configured) {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
-    $("setupNotice").hidden = false;
+    showSetupNotice($("setupNotice"));
   }
 
   var batches = [];      // 這個單位可以填的批次

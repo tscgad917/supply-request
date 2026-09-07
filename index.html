@@ -210,7 +210,15 @@ qty.className = "qty";
 
 var maxQty = Number(it.max || 10);
 
-for (var i = 0; i <= maxQty; i++) {
+// 預設顯示「請選擇」
+var placeholder = document.createElement("option");
+placeholder.value = "0";
+placeholder.textContent = "請選擇";
+placeholder.selected = true;
+qty.appendChild(placeholder);
+
+// 建立 1 ～ maxQty 的數量選項
+for (var i = 1; i <= maxQty; i++) {
   var opt = document.createElement("option");
   opt.value = i;
   opt.textContent = i;
@@ -267,7 +275,7 @@ qty.setAttribute("aria-label", it.n + " 數量");
 
   function clearQty() {
     document.querySelectorAll(".qty").forEach(function (q) {
-      q.value = "";
+      q.value = "0";
       q.parentNode.classList.remove("on");
     });
     $("note").value = "";

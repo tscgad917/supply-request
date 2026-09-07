@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>後台管理｜傳票耗材申請</title>
+<meta name="theme-color" content="#44633F">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { padding-bottom: 40px; }
+  .wrap { padding-bottom: 60px; }
+  .tabs { display: flex; gap: 8px; margin-top: 16px; }
+  .tab {
+    flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 700;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    color: var(--ink-soft); cursor: pointer;
+  }
+  .tab.active { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+  .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .filters { grid-template-columns: 1fr 1fr; } }
+  .rec { border-top: 1px solid var(--line); }
+  .rec:first-child { border-top: none; }
+  .rec > summary {
+    list-style: none; cursor: pointer; padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rec > summary::-webkit-details-marker { display: none; }
+  .badge {
+    background: var(--green-deep); color: #fff; font-weight: 700;
+    border-radius: 8px; padding: 4px 9px; font-size: 13px;
+    font-variant-numeric: tabular-nums; flex: none;
+  }
+  .meta { flex: 1; min-width: 0; }
+  .meta .l1 { font-size: 14.5px; font-weight: 700; }
+  .meta .l2 { font-size: 12px; color: var(--ink-soft); }
+  .n-items { font-size: 12px; color: var(--green-deep); background: var(--tint); border-radius: 999px; padding: 2px 9px; flex: none; }
+  .detail { padding: 4px 16px 16px; }
+  .detail ul { margin: 0; padding-left: 20px; font-size: 14px; }
+  .detail li { padding: 2px 0; }
+  .detail .note { background: #fdf6ec; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; margin-top: 10px; white-space: pre-wrap; }
+  .actions { margin-top: 12px; display: flex; gap: 8px; }
+  .tblwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; font-size: 13px; min-width: 100%; }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: center; white-space: nowrap; }
+  th { background: var(--tint); color: var(--green-deep); font-weight: 700; position: sticky; top: 0; }
+  td.item { text-align: left; position: sticky; left: 0; background: #fff; font-weight: 500; }
+  th.item { text-align: left; position: sticky; left: 0; z-index: 2; }
+  td.total, th.total { background: #f3f9f4; font-weight: 700; }
+  .login { max-width: 340px; margin: 60px auto; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <img src="icons/icon-192.png" alt="">
+  <div>
+    <h1>後台管理</h1>
+    <p>傳票耗材申請</p>
+  </div>
+  <span class="grow"></span>
+  <a class="linkbtn" href="index.html">回填單</a>
+</header>
+
+<!-- ---------- 登入 ---------- -->
+<div class="wrap" id="loginView">
+  <div class="card login">
+    <div class="body">
+      <h2 class="sec">請輸入管理員密碼</h2>
+      <p class="sub">只有總務課需要進來。</p>
+      <input type="password" id="pw" inputmode="numeric" placeholder="密碼" autocomplete="current-password">
+      <div style="margin-top:12px"><button id="loginBtn" style="width:100%">進入後台</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- 主畫面 ---------- -->
+<div class="wrap" id="mainView" hidden>
+
+  <div id="setupNotice" class="notice" hidden>
+    還沒接上資料庫。請打開 <code>config.js</code>，把 Supabase 的網址和 anon key 貼進去。
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="list">申請紀錄</div>
+    <div class="tab" data-tab="sum">彙總表</div>
+  </div>
+
+  <section class="card">
+    <div class="body">
+      <div class="filters">
+        <div>
+          <label class="f" for="fFrom">起始日期</label>
+          <input type="date" id="fFrom">
+        </div>
+        <div>
+          <label class="f" for="fTo">結束日期</label>
+          <input type="date" id="fTo">
+        </div>
+        <div>
+          <label class="f" for="fUnit">單位</label>
+          <select id="fUnit"><option value="">全部</option></select>
+        </div>
+        <div>
+          <label class="f" for="fKey">搜尋</label>
+          <input type="text" id="fKey" placeholder="填單人／項目">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="small" id="reloadBtn">查詢</button>
+        <button class="small ghost" id="thisMonthBtn">本月</button>
+        <button class="small ghost" id="allBtn">全部</button>
+        <span style="flex:1"></span>
+        <button class="small ghost" id="exportBtn">匯出 CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 申請紀錄 -->
+  <section class="card" id="listPane">
+    <div id="recList"><div class="empty">載入中…</div></div>
+  </section>
+
+  <!-- 彙總表 -->
+  <section class="card" id="sumPane" hidden>
+    <div class="body">
+      <h2 class="sec">項目彙總</h2>
+      <p class="sub">依上方日期與單位條件統計，橫向為分社，只顯示有申請的項目。</p>
+      <div class="tblwrap" id="sumTable"></div>
+      <div id="sumNotes"></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="items.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+  var records = [];
+
+  var configured =
+    SUPABASE_URL.indexOf("supabase.co") > -1 &&
+    SUPABASE_URL.indexOf("請貼上") === -1 &&
+    SUPABASE_ANON_KEY.indexOf("請貼上") === -1;
+  var db = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+  var toastTimer;
+  function toast(msg, bad) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (bad ? " bad" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+  }
+
+  function sess(k, v) {
+    try {
+      if (v === undefined) return sessionStorage.getItem(k);
+      sessionStorage.setItem(k, v);
+    } catch (e) {}
+    return null;
+  }
+
+  /* ---------- 登入 ---------- */
+  function unlock() {
+    $("loginView").hidden = true;
+    $("mainView").hidden = false;
+    if (!configured) { $("setupNotice").hidden = false; render(); return; }
+    thisMonth();
+    load();
+  }
+
+  $("loginBtn").addEventListener("click", function () {
+    if ($("pw").value === ADMIN_PASSWORD) {
+      sess("supply-admin", "1");
+      unlock();
+    } else {
+      toast("密碼不對", true);
+      $("pw").select();
+    }
+  });
+  $("pw").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") $("loginBtn").click();
+  });
+  if (sess("supply-admin") === "1") unlock();
+
+  /* ---------- 篩選器 ---------- */
+  UNITS.forEach(function (u) {
+    var o = document.createElement("option");
+    o.value = u; o.textContent = u;
+    $("fUnit").appendChild(o);
+  });
+
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+
+  function thisMonth() {
+    var t = new Date();
+    $("fFrom").value = iso(new Date(t.getFullYear(), t.getMonth(), 1));
+    $("fTo").value = iso(new Date(t.getFullYear(), t.getMonth() + 1, 0));
+  }
+  $("thisMonthBtn").addEventListener("click", function () { thisMonth(); load(); });
+  $("allBtn").addEventListener("click", function () {
+    $("fFrom").value = ""; $("fTo").value = ""; $("fUnit").value = ""; $("fKey").value = "";
+    load();
+  });
+  $("reloadBtn").addEventListener("click", load);
+  $("fKey").addEventListener("input", render);
+
+  /* ---------- 讀取資料 ---------- */
+  async function load() {
+    if (!configured) return;
+    $("recList").innerHTML = '<div class="empty">載入中…</div>';
+    var q = db.from("supply_requests").select("*").order("apply_date", { ascending: false }).order("created_at", { ascending: false });
+    if ($("fFrom").value) q = q.gte("apply_date", $("fFrom").value);
+    if ($("fTo").value) q = q.lte("apply_date", $("fTo").value);
+    if ($("fUnit").value) q = q.eq("unit_code", $("fUnit").value);
+    var res = await q;
+    if (res.error) {
+      $("recList").innerHTML = '<div class="empty">讀取失敗：' + res.error.message + "</div>";
+      return;
+    }
+    records = res.data || [];
+    render();
+  }
+
+  function filtered() {
+    var k = $("fKey").value.trim();
+    if (!k) return records;
+    return records.filter(function (r) {
+      if ((r.applicant || "").indexOf(k) > -1) return true;
+      if ((r.note || "").indexOf(k) > -1) return true;
+      return (r.items || []).some(function (i) { return i.name.indexOf(k) > -1; });
+    });
+  }
+
+  /* ---------- 畫面 ---------- */
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function render() {
+    var rows = filtered();
+    renderList(rows);
+    renderSummary(rows);
+  }
+
+  function renderList(rows) {
+    var box = $("recList");
+    if (!rows.length) {
+      box.innerHTML = '<div class="empty">這個範圍沒有申請單。<br>換個日期或按「全部」看看。</div>';
+      return;
+    }
+    box.innerHTML = rows.map(function (r) {
+      var items = (r.items || []).map(function (i) {
+        return "<li>" + esc(i.name) + "　<b>" + esc(i.qty) + esc(i.unit) + "</b></li>";
+      }).join("");
+      return (
+        '<details class="rec">' +
+        "<summary>" +
+        '<span class="badge">' + esc(r.unit_code) + "</span>" +
+        '<span class="meta"><span class="l1">' + esc(r.applicant) + "</span>" +
+        '<div class="l2">' + esc(r.apply_date) + "　" + esc(r.period || "") + "</div></span>" +
+        '<span class="n-items">' + (r.items || []).length + " 項</span>" +
+        "</summary>" +
+        '<div class="detail">' +
+        (items ? "<ul>" + items + "</ul>" : '<p class="sub">沒有勾選表列項目。</p>') +
+        (r.note ? '<div class="note">備註：' + esc(r.note) + "</div>" : "") +
+        '<div class="actions"><button class="small danger" data-del="' + esc(r.id) + '">刪除這張單</button></div>' +
+        "</div></details>"
+      );
+    }).join("");
+
+    box.querySelectorAll("[data-del]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        if (!confirm("刪除後無法復原，確定嗎？")) return;
+        var res = await db.from("supply_requests").delete().eq("id", b.dataset.del);
+        if (res.error) { toast("刪除失敗：" + res.error.message, true); return; }
+        toast("已刪除");
+        load();
+      });
+    });
+  }
+
+  function summarize(rows) {
+    var unitsUsed = [];
+    var map = {};   // 項目 → { 單位: 數量 }
+    var unitLabel = {}; // 項目 → 計量單位
+    rows.forEach(function (r) {
+      if (unitsUsed.indexOf(r.unit_code) === -1) unitsUsed.push(r.unit_code);
+      (r.items || []).forEach(function (i) {
+        if (!map[i.name]) map[i.name] = {};
+        map[i.name][r.unit_code] = (map[i.name][r.unit_code] || 0) + Number(i.qty);
+        unitLabel[i.name] = i.unit;
+      });
+    });
+    unitsUsed.sort();
+    var names = ALL_ITEM_NAMES.filter(function (n) { return map[n]; });
+    Object.keys(map).forEach(function (n) {
+      if (names.indexOf(n) === -1) names.push(n);
+    });
+    return { unitsUsed: unitsUsed, names: names, map: map, unitLabel: unitLabel };
+  }
+
+  function renderSummary(rows) {
+    var s = summarize(rows);
+    if (!s.names.length) {
+      $("sumTable").innerHTML = '<div class="empty">這個範圍沒有可統計的項目。</div>';
+      $("sumNotes").innerHTML = "";
+      return;
+    }
+    var html = "<table><thead><tr><th class='item'>項目</th>";
+    s.unitsUsed.forEach(function (u) { html += "<th>" + esc(u) + "</th>"; });
+    html += "<th class='total'>合計</th></tr></thead><tbody>";
+    s.names.forEach(function (n) {
+      html += "<tr><td class='item'>" + esc(n) + "</td>";
+      var tot = 0;
+      s.unitsUsed.forEach(function (u) {
+        var v = s.map[n][u];
+        if (v) tot += v;
+        html += "<td>" + (v ? esc(v) + esc(s.unitLabel[n]) : "") + "</td>";
+      });
+      html += "<td class='total'>" + tot + esc(s.unitLabel[n]) + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    $("sumTable").innerHTML = html;
+
+    var notes = rows.filter(function (r) { return r.note; });
+    $("sumNotes").innerHTML = notes.length
+      ? "<h2 class='sec' style='margin-top:20px'>其他項目與備註</h2>" +
+        notes.map(function (r) {
+          return '<div class="note">' + esc(r.unit_code) + "　" + esc(r.applicant) + "：" + esc(r.note) + "</div>";
+        }).join("")
+      : "";
+  }
+
+  /* ---------- 分頁切換 ---------- */
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.classList.remove("active"); });
+      t.classList.add("active");
+      var list = t.dataset.tab === "list";
+      $("listPane").hidden = !list;
+      $("sumPane").hidden = list;
+    });
+  });
+
+  /* ---------- 匯出 CSV ---------- */
+  function csvCell(v) {
+    var s = String(v == null ? "" : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  $("exportBtn").addEventListener("click", function () {
+    var rows = filtered();
+    if (!rows.length) { toast("沒有資料可匯出", true); return; }
+    var isSummary = !$("sumPane").hidden;
+    var lines = [];
+    var fname;
+
+    if (isSummary) {
+      var s = summarize(rows);
+      lines.push(["項目"].concat(s.unitsUsed).concat(["合計"]).map(csvCell).join(","));
+      s.names.forEach(function (n) {
+        var tot = 0;
+        var line = [n];
+        s.unitsUsed.forEach(function (u) {
+          var v = s.map[n][u];
+          if (v) tot += v;
+          line.push(v ? v + s.unitLabel[n] : "");
+        });
+        line.push(tot + s.unitLabel[n]);
+        lines.push(line.map(csvCell).join(","));
+      });
+      fname = "耗材彙總表";
+    } else {
+      lines.push(["申請日期", "半月", "單位", "填單人", "項目", "數量", "單位量詞", "備註"].join(","));
+      rows.forEach(function (r) {
+        if ((r.items || []).length) {
+          r.items.forEach(function (i) {
+            lines.push([r.apply_date, r.period, r.unit_code, r.applicant, i.name, i.qty, i.unit, r.note || ""].map(csvCell).join(","));
+          });
+        } else {
+          lines.push([r.apply_date, r.period, r.unit_code, r.applicant, "", "", "", r.note || ""].map(csvCell).join(","));
+        }
+      });
+      fname = "耗材申請明細";
+    }
+
+    var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fname + "_" + iso(new Date()) + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("已匯出，用 Excel 打開就好");
+  });
+})();
+</script>
+</body>
+</html>

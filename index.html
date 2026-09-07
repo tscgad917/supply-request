@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>傳票耗材申請</title>
+<meta name="theme-color" content="#44633F">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="耗材申請">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <img src="icons/icon-192.png" alt="">
+  <div>
+    <h1>傳票耗材申請</h1>
+    <p>115 年各分社</p>
+  </div>
+  <span class="grow"></span>
+  <a class="linkbtn" href="admin.html">後台</a>
+</header>
+
+<div class="wrap">
+
+  <div id="setupNotice" class="notice" hidden>
+    還沒接上資料庫。請打開 <code>config.js</code>，把 Supabase 的網址和 anon key 貼進去。
+  </div>
+
+  <form id="form" novalidate>
+
+    <section class="card">
+      <div class="body">
+        <h2 class="sec">填單資料</h2>
+        <p class="sub">送出後總務課會收到這張單子。</p>
+
+        <div class="grid2">
+          <div class="field">
+            <label class="f" for="unit">填單單位 <span class="req">*</span></label>
+            <select id="unit" required>
+              <option value="">請選擇分社</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="f" for="applicant">填單人 <span class="req">*</span></label>
+            <input type="text" id="applicant" placeholder="請輸入姓名" autocomplete="name" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="f" for="applyDate">申請日期 <span class="req">*</span></label>
+          <input type="date" id="applyDate" required>
+          <span class="period-tag" id="periodTag"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="body" style="padding-bottom:4px">
+        <h2 class="sec">申請項目</h2>
+        <p class="sub">點分類展開，只要填需要的數量，其餘留空即可。</p>
+      </div>
+      <div id="groups"></div>
+    </section>
+
+    <section class="card">
+      <div class="body">
+        <h2 class="sec">其他項目與備註</h2>
+        <p class="sub">上面沒有列出的品項寫在這裡（請註明項目與數量）。未列出項目請先來電總務課確認是否提供。</p>
+        <textarea id="note" placeholder="例：放款封面 1 本"></textarea>
+      </div>
+    </section>
+
+    <div style="margin-top:16px;text-align:right">
+      <button type="button" class="ghost small" id="clearBtn">清空整張表</button>
+    </div>
+  </form>
+</div>
+
+<div class="dock">
+  <div class="inner">
+    <div class="count">已填 <b id="totalCount">0</b> 項</div>
+    <button type="button" id="submitBtn">送出申請</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="items.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var DRAFT_KEY = "supply-draft-v1";
+  var configured =
+    SUPABASE_URL.indexOf("supabase.co") > -1 &&
+    SUPABASE_URL.indexOf("請貼上") === -1 &&
+    SUPABASE_ANON_KEY.indexOf("請貼上") === -1;
+
+  var db = null;
+  if (configured) {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    document.getElementById("setupNotice").hidden = false;
+  }
+
+  /* ---------- 小工具 ---------- */
+  function $(id) { return document.getElementById(id); }
+
+  var toastTimer;
+  function toast(msg, bad) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (bad ? " bad" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+  }
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return localStorage.getItem(key);
+      localStorage.setItem(key, val);
+    } catch (e) { /* 無痕模式等情況，略過 */ }
+    return null;
+  }
+  function drop(key) { try { localStorage.removeItem(key); } catch (e) {} }
+
+  /* ---------- 單位下拉 ---------- */
+  var unitSel = $("unit");
+  UNITS.forEach(function (u) {
+    var o = document.createElement("option");
+    o.value = u; o.textContent = u;
+    unitSel.appendChild(o);
+  });
+
+  /* ---------- 日期 ---------- */
+  var dateEl = $("applyDate");
+  var today = new Date();
+  var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+  dateEl.value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
+
+  function periodOf(dateStr) {
+    var d = parseInt(dateStr.slice(8, 10), 10);
+    return d <= 15 ? "上半月" : "下半月";
+  }
+  function rocLabel(dateStr) {
+    var y = parseInt(dateStr.slice(0, 4), 10) - 1911;
+    return "民國 " + y + " 年 " + parseInt(dateStr.slice(5, 7), 10) + " 月";
+  }
+  function refreshPeriod() {
+    if (!dateEl.value) { $("periodTag").textContent = ""; return; }
+    $("periodTag").textContent = rocLabel(dateEl.value) + "　" + periodOf(dateEl.value);
+  }
+  dateEl.addEventListener("change", function () { refreshPeriod(); saveDraft(); });
+  refreshPeriod();
+
+  /* ---------- 建立摺疊選單 ---------- */
+  var groupsEl = $("groups");
+
+  CATEGORIES.forEach(function (cat) {
+    var d = document.createElement("details");
+    d.className = "group";
+    d.dataset.cat = cat.id;
+
+    var s = document.createElement("summary");
+    s.innerHTML =
+      '<span class="chev"></span>' +
+      '<span><span class="gname">' + cat.name + "</span> " +
+      '<span class="ghint">' + cat.hint + "</span></span>" +
+      '<span class="gcount zero">0</span>';
+    d.appendChild(s);
+
+    var box = document.createElement("div");
+    box.className = "rows";
+
+    cat.items.forEach(function (it, idx) {
+      var row = document.createElement("div");
+      row.className = "row";
+
+      var nm = document.createElement("div");
+      nm.className = "nm";
+      nm.textContent = it.n;
+
+      var qty = document.createElement("input");
+      qty.type = "number";
+      qty.className = "qty";
+      qty.min = "0";
+      qty.step = "1";
+      qty.inputMode = "numeric";
+      qty.placeholder = "—";
+      qty.dataset.name = it.n;
+      qty.setAttribute("aria-label", it.n + " 數量");
+
+      var un = document.createElement("select");
+      un.className = "unit";
+      un.setAttribute("aria-label", it.n + " 單位");
+      UNIT_OPTIONS.forEach(function (u) {
+        var o = document.createElement("option");
+        o.value = u; o.textContent = u;
+        if (u === it.u) o.selected = true;
+        un.appendChild(o);
+      });
+
+      qty.addEventListener("input", function () {
+        row.classList.toggle("on", Number(qty.value) > 0);
+        refreshCounts();
+        saveDraft();
+      });
+      un.addEventListener("change", saveDraft);
+
+      row.appendChild(nm);
+      row.appendChild(qty);
+      row.appendChild(un);
+      box.appendChild(row);
+    });
+
+    d.appendChild(box);
+    groupsEl.appendChild(d);
+  });
+
+  /* ---------- 統計 ---------- */
+  function collect() {
+    var out = [];
+    document.querySelectorAll(".qty").forEach(function (q) {
+      var v = Number(q.value);
+      if (v > 0) {
+        out.push({
+          name: q.dataset.name,
+          qty: v,
+          unit: q.parentNode.querySelector(".unit").value,
+        });
+      }
+    });
+    return out;
+  }
+
+  function refreshCounts() {
+    var total = 0;
+    document.querySelectorAll("details.group").forEach(function (d) {
+      var n = 0;
+      d.querySelectorAll(".qty").forEach(function (q) { if (Number(q.value) > 0) n++; });
+      var badge = d.querySelector(".gcount");
+      badge.textContent = n;
+      badge.className = "gcount" + (n ? "" : " zero");
+      total += n;
+    });
+    $("totalCount").textContent = total;
+    return total;
+  }
+
+  /* ---------- 草稿 ---------- */
+  var saveTimer;
+  function saveDraft() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      store(DRAFT_KEY, JSON.stringify({
+        unit: unitSel.value,
+        applicant: $("applicant").value,
+        date: dateEl.value,
+        note: $("note").value,
+        items: collect(),
+      }));
+    }, 300);
+  }
+
+  function loadDraft() {
+    var raw = store(DRAFT_KEY);
+    if (!raw) return;
+    var d;
+    try { d = JSON.parse(raw); } catch (e) { return; }
+    if (d.unit) unitSel.value = d.unit;
+    if (d.applicant) $("applicant").value = d.applicant;
+    if (d.date) dateEl.value = d.date;
+    if (d.note) $("note").value = d.note;
+    (d.items || []).forEach(function (it) {
+      document.querySelectorAll(".qty").forEach(function (q) {
+        if (q.dataset.name === it.name) {
+          q.value = it.qty;
+          q.parentNode.querySelector(".unit").value = it.unit;
+          q.parentNode.classList.add("on");
+          q.closest("details").open = true;
+        }
+      });
+    });
+    refreshPeriod();
+    refreshCounts();
+  }
+
+  unitSel.addEventListener("change", saveDraft);
+  $("applicant").addEventListener("input", saveDraft);
+  $("note").addEventListener("input", saveDraft);
+
+  /* ---------- 清空 ---------- */
+  $("clearBtn").addEventListener("click", function () {
+    if (!confirm("整張表會清空，確定嗎？")) return;
+    document.querySelectorAll(".qty").forEach(function (q) {
+      q.value = "";
+      q.parentNode.classList.remove("on");
+    });
+    $("note").value = "";
+    drop(DRAFT_KEY);
+    refreshCounts();
+    toast("表單已清空");
+  });
+
+  /* ---------- 送出 ---------- */
+  $("submitBtn").addEventListener("click", async function () {
+    var btn = this;
+
+    if (!configured) { toast("尚未設定 Supabase，無法送出", true); return; }
+    if (!unitSel.value) { toast("請選擇填單單位", true); unitSel.focus(); return; }
+    if (!$("applicant").value.trim()) { toast("請填寫填單人", true); $("applicant").focus(); return; }
+    if (!dateEl.value) { toast("請選擇申請日期", true); dateEl.focus(); return; }
+
+    var items = collect();
+    var note = $("note").value.trim();
+    if (!items.length && !note) { toast("還沒填任何項目", true); return; }
+
+    btn.disabled = true;
+    btn.textContent = "送出中…";
+
+    var payload = {
+      unit_code: unitSel.value,
+      applicant: $("applicant").value.trim(),
+      apply_date: dateEl.value,
+      period: periodOf(dateEl.value),
+      items: items,
+      item_count: items.length,
+      note: note,
+    };
+
+    var res = await db.from("supply_requests").insert(payload);
+
+    btn.disabled = false;
+    btn.textContent = "送出申請";
+
+    if (res.error) {
+      toast("送出失敗：" + res.error.message, true);
+      return;
+    }
+
+    drop(DRAFT_KEY);
+    document.querySelectorAll(".qty").forEach(function (q) {
+      q.value = "";
+      q.parentNode.classList.remove("on");
+    });
+    $("note").value = "";
+    document.querySelectorAll("details.group").forEach(function (d) { d.open = false; });
+    refreshCounts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    toast("已送出，總務課收到了");
+  });
+
+  loadDraft();
+  refreshCounts();
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>

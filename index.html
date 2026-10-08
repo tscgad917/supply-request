@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -702,11 +703,20 @@
 
   function setLocked(locked) {
 
-    $("unit").disabled = locked;
+    /*
+      注意：
+      單位與批次「永遠不能鎖定」，
+      這樣已有申請的單位仍可切換到其他單位。
+    */
 
-    $("applicant").disabled = locked;
+    $("unit").disabled = false;
 
-    $("batch").disabled = locked;
+    $("batch").disabled = false;
+
+
+    $("applicant").disabled =
+      locked;
+
 
     document
       .querySelectorAll(".qty")
@@ -881,7 +891,26 @@
         true;
 
 
-      setLocked(true);
+      /*
+        沒有批次時：
+        仍然允許切換單位。
+        只是其他填寫欄位暫停。
+      */
+
+      $("applicant").disabled = true;
+
+      document
+        .querySelectorAll(".qty")
+        .forEach(function (q) {
+          q.disabled = true;
+        });
+
+      $("note").disabled = true;
+      $("clearBtn").disabled = true;
+      $("submitBtn").disabled = true;
+
+      $("unit").disabled = false;
+      $("batch").disabled = false;
 
       return;
 
@@ -1074,7 +1103,16 @@
       res.error ||
       !res.data
     ) {
+
+      /*
+        沒有既有申請：
+        確保目前畫面可以填寫。
+      */
+
+      setLocked(false);
+
       return;
+
     }
 
 
@@ -1219,11 +1257,27 @@
 
     /*
       已有申請：
-      前台全部鎖定。
-      修改只能由總務課後台處理。
+      填寫內容全部鎖定。
+      但「單位」與「批次」仍可切換。
     */
 
-    setLocked(true);
+    $("unit").disabled = false;
+
+    $("batch").disabled = false;
+
+    $("applicant").disabled = true;
+
+    document
+      .querySelectorAll(".qty")
+      .forEach(function (q) {
+        q.disabled = true;
+      });
+
+    $("note").disabled = true;
+
+    $("clearBtn").disabled = true;
+
+    $("submitBtn").disabled = true;
 
   }
 
@@ -1370,7 +1424,8 @@
           true
         );
 
-        setLocked(true);
+        $("unit").disabled = false;
+        $("batch").disabled = false;
 
         await checkExisting();
 
@@ -1479,7 +1534,8 @@
             true
           );
 
-          setLocked(true);
+          $("unit").disabled = false;
+          $("batch").disabled = false;
 
           await checkExisting();
 
@@ -1545,3 +1601,4 @@
 
 </body>
 </html>
+```

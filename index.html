@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -27,11 +28,9 @@
     <p>115 年各分社</p>
   </div>
 
-  <span class="grow"></span>
+<span class="grow"></span>
 
- 
 </header>
-
 
 <div class="wrap">
 
@@ -39,186 +38,182 @@
     還沒接上資料庫。請打開 <code>config.js</code>，把 Supabase 的網址和 anon key 貼進去。
   </div>
 
-
   <section class="card">
 
-    <div class="body">
+```
+<div class="body">
 
-      <h2 class="sec">填單資料</h2>
+  <h2 class="sec">填單資料</h2>
 
-      <p class="sub">
-        選好單位就會顯示這次的收單期限。
-      </p>
+  <p class="sub">
+    選好單位就會顯示這次的收單期限。
+  </p>
 
+  <div class="grid2">
 
-      <div class="grid2">
+    <div class="field">
 
-        <div class="field">
+      <label class="f" for="unit">
+        填單單位 <span class="req">*</span>
+      </label>
 
-          <label class="f" for="unit">
-            填單單位 <span class="req">*</span>
-          </label>
-
-          <select id="unit" required>
-            <option value="">請選擇分社</option>
-          </select>
-
-        </div>
-
-
-        <div class="field">
-
-          <label class="f" for="applicant">
-            填單人 <span class="req">*</span>
-          </label>
-
-          <input
-            type="text"
-            id="applicant"
-            placeholder="請輸入姓名"
-            autocomplete="name"
-            required
-          >
-
-        </div>
-
-      </div>
-
-
-      <div class="field" id="batchPickWrap" hidden>
-
-        <label class="f" for="batch">
-          收單批次
-        </label>
-
-        <select id="batch"></select>
-
-      </div>
-
-
-      <div class="field">
-
-        <label class="f" for="applyDate">
-          填單日期
-        </label>
-
-        <input
-          type="text"
-          id="applyDate"
-          readonly
-        >
-
-      </div>
+      <select id="unit" required>
+        <option value="">請選擇分社</option>
+      </select>
 
     </div>
 
+    <div class="field">
 
-    <div id="batchBar" class="batchbar" hidden></div>
+      <label class="f" for="applicant">
+        填單人 <span class="req">*</span>
+      </label>
 
-    <!-- 已有申請資料提示 -->
-    <div id="existingNotice" class="notice" hidden></div>
-
-  </section>
-
-
-  <section class="card" id="itemCard">
-
-    <div class="body" style="padding-bottom:4px">
-
-      <h2 class="sec">
-        申請項目
-      </h2>
-
-      <p class="sub">
-        點分類展開，只要填需要的數量，其餘留空即可。
-      </p>
+      <input
+        type="text"
+        id="applicant"
+        placeholder="請輸入姓名"
+        autocomplete="name"
+        required
+      >
 
     </div>
 
-    <div id="groups"></div>
+  </div>
 
-  </section>
+  <div class="field" id="batchPickWrap" hidden>
 
+    <label class="f" for="batch">
+      收單批次
+    </label>
 
-  <section class="card">
+    <select id="batch"></select>
 
-    <div class="body">
+  </div>
 
-      <h2 class="sec">
-        其他項目與備註
-      </h2>
+  <div class="field">
 
-      <p class="sub">
-        上面沒有列出的品項寫在這裡（請註明項目與數量）。
-        未列出項目請先來電總務課確認是否提供。
-      </p>
+    <label class="f" for="applyDate">
+      填單日期
+    </label>
 
-      <textarea
-        id="note"
-        placeholder="例：放款封面 1 本"
-      ></textarea>
-
-    </div>
-
-  </section>
-
-
-  <div style="margin-top:16px;text-align:right">
-
-    <button
-      type="button"
-      class="ghost small"
-      id="clearBtn"
+    <input
+      type="text"
+      id="applyDate"
+      readonly
     >
-      清空所有數量
-    </button>
 
   </div>
 
 </div>
 
+<div id="batchBar" class="batchbar" hidden></div>
+
+<div id="existingNotice" class="notice" hidden></div>
+```
+
+  </section>
+
+  <section class="card" id="itemCard">
+
+```
+<div class="body" style="padding-bottom:4px">
+
+  <h2 class="sec">
+    申請項目
+  </h2>
+
+  <p class="sub">
+    點分類展開，只要填需要的數量，其餘留空即可。
+  </p>
+
+</div>
+
+<div id="groups"></div>
+```
+
+  </section>
+
+  <section class="card">
+
+```
+<div class="body">
+
+  <h2 class="sec">
+    其他項目與備註
+  </h2>
+
+  <p class="sub">
+    上面沒有列出的品項寫在這裡（請註明項目與數量）。
+    未列出項目請先來電總務課確認是否提供。
+  </p>
+
+  <textarea
+    id="note"
+    placeholder="例：放款封面 1 本"
+  ></textarea>
+
+</div>
+```
+
+  </section>
+
+  <div style="margin-top:16px;text-align:right">
+
+```
+<button
+  type="button"
+  class="ghost small"
+  id="clearBtn"
+>
+  清空所有數量
+</button>
+```
+
+  </div>
+
+</div>
 
 <div class="dock">
 
   <div class="inner">
 
-    <div class="count">
-      已填
-      <b id="totalCount">0</b>
-      項
-      <span id="savedAt" class="saved"></span>
-    </div>
+```
+<div class="count">
+  已填
+  <b id="totalCount">0</b>
+  項
+  <span id="savedAt" class="saved"></span>
+</div>
 
-    <button
-      type="button"
-      id="submitBtn"
-    >
-      儲存申請
-    </button>
+<button
+  type="button"
+  id="submitBtn"
+>
+  儲存申請
+</button>
+```
 
   </div>
 
 </div>
 
-
 <div class="toast" id="toast"></div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="items.js"></script>
 
+<script src="config.js"></script>
+
+<script src="items.js"></script>
 
 <script>
 (function () {
 
   "use strict";
 
-
   function $(id) {
     return document.getElementById(id);
   }
-
 
   /* ---------- Supabase 設定 ---------- */
 
@@ -229,7 +224,6 @@
            v.indexOf("請貼上") === -1;
 
   }
-
 
   function peek(v) {
 
@@ -247,19 +241,15 @@
 
   }
 
-
   var urlOK =
     looksSet(SUPABASE_URL) &&
     /^https?:\/\//.test(SUPABASE_URL);
 
-
   var keyOK =
     looksSet(SUPABASE_ANON_KEY);
 
-
   var configured =
     urlOK && keyOK;
-
 
   function showSetupNotice(el) {
 
@@ -295,9 +285,7 @@
 
   }
 
-
   var db = null;
-
 
   if (configured) {
 
@@ -313,27 +301,13 @@
 
   }
 
-
   var batches = [];
 
   var currentBatch = null;
 
-  /*
-    existingId：
-
-    只有「使用者主動載入原申請」後，
-    才會設定為原申請的 id。
-
-    如果只是看到「已有申請」，
-    不會自動載入。
-  */
-  var existingId = null;
-
-
   /* ---------- 小工具 ---------- */
 
   var toastTimer;
-
 
   function toast(msg, bad) {
 
@@ -354,13 +328,11 @@
 
   }
 
-
   function pad(n) {
 
     return (n < 10 ? "0" : "") + n;
 
   }
-
 
   function iso(d) {
 
@@ -372,13 +344,11 @@
 
   }
 
-
   function todayISO() {
 
     return iso(new Date());
 
   }
-
 
   function daysLeft(deadline) {
 
@@ -393,7 +363,6 @@
     );
 
   }
-
 
   function rocDate(dateStr) {
 
@@ -411,11 +380,9 @@
 
   }
 
-
   /* ---------- 單位下拉 ---------- */
 
   var unitSel = $("unit");
-
 
   UNITS.forEach(function (u) {
 
@@ -430,16 +397,13 @@
 
   });
 
-
   $("applyDate").value =
     rocDate(todayISO());
-
 
   /* ---------- 建立摺疊選單 ---------- */
 
   var groupsEl =
     $("groups");
-
 
   CATEGORIES.forEach(function (cat) {
 
@@ -448,10 +412,8 @@
 
     d.className = "group";
 
-
     var s =
       document.createElement("summary");
-
 
     s.innerHTML =
       '<span class="chev"></span>' +
@@ -469,15 +431,12 @@
 
       '<span class="gcount zero">0</span>';
 
-
     d.appendChild(s);
-
 
     var box =
       document.createElement("div");
 
     box.className = "rows";
-
 
     cat.items.forEach(function (it) {
 
@@ -486,7 +445,6 @@
 
       row.className = "row";
 
-
       var nm =
         document.createElement("div");
 
@@ -494,29 +452,13 @@
 
       nm.textContent = it.n;
 
-
-      /* ---------- 數量下拉 ---------- */
-
       var qty =
         document.createElement("select");
 
       qty.className = "qty";
 
-
-      /*
-        每個品項依 items.js 的 max
-        建立自己的最大數量。
-
-        例如：
-        max: 4  → 請選擇、1、2、3、4
-        max: 20 → 請選擇、1～20
-      */
-
       var maxQty =
         Number(it.max || 10);
-
-
-      /* 預設顯示「請選擇」 */
 
       var placeholder =
         document.createElement("option");
@@ -532,9 +474,6 @@
       qty.appendChild(
         placeholder
       );
-
-
-      /* 建立 1 ～ maxQty */
 
       for (
         var i = 1;
@@ -553,9 +492,7 @@
 
       }
 
-
       qty.value = "0";
-
 
       qty.dataset.name =
         it.n;
@@ -563,12 +500,10 @@
       qty.dataset.unit =
         it.u;
 
-
       qty.setAttribute(
         "aria-label",
         it.n + " 數量"
       );
-
 
       var un =
         document.createElement("span");
@@ -576,7 +511,6 @@
       un.className = "unit";
 
       un.textContent = it.u;
-
 
       qty.addEventListener(
         "change",
@@ -592,17 +526,12 @@
         }
       );
 
-
       row.appendChild(nm);
-
       row.appendChild(qty);
-
       row.appendChild(un);
-
       box.appendChild(row);
 
     });
-
 
     d.appendChild(box);
 
@@ -610,13 +539,11 @@
 
   });
 
-
   /* ---------- 統計 ---------- */
 
   function collect() {
 
     var out = [];
-
 
     document
       .querySelectorAll(".qty")
@@ -624,7 +551,6 @@
 
         var v =
           Number(q.value);
-
 
         if (v > 0) {
 
@@ -645,23 +571,19 @@
 
       });
 
-
     return out;
 
   }
 
-
   function refreshCounts() {
 
     var total = 0;
-
 
     document
       .querySelectorAll("details.group")
       .forEach(function (d) {
 
         var n = 0;
-
 
         d
           .querySelectorAll(".qty")
@@ -673,32 +595,25 @@
 
           });
 
-
         var badge =
           d.querySelector(".gcount");
 
-
         badge.textContent = n;
-
 
         badge.className =
           "gcount" +
           (n ? "" : " zero");
 
-
         total += n;
 
       });
 
-
     $("totalCount").textContent =
       total;
-
 
     return total;
 
   }
-
 
   /* ---------- 清空數量 ---------- */
 
@@ -708,10 +623,6 @@
       .querySelectorAll(".qty")
       .forEach(function (q) {
 
-        /*
-          0 就是「請選擇」的 value
-        */
-
         q.value = "0";
 
         q.parentNode.classList.remove(
@@ -720,13 +631,11 @@
 
       });
 
-
     $("note").value = "";
 
     refreshCounts();
 
   }
-
 
   /* ---------- 鎖定／解除鎖定 ---------- */
 
@@ -740,27 +649,22 @@
 
       });
 
-
     $("note").disabled =
       locked;
 
-
     $("clearBtn").disabled =
       locked;
-
 
     $("submitBtn").disabled =
       locked;
 
   }
 
-
   /* ---------- 批次 ---------- */
 
   async function loadBatches() {
 
     if (!configured) return;
-
 
     var res =
       await db
@@ -772,7 +676,6 @@
             ascending: true
           }
         );
-
 
     if (res.error) {
 
@@ -786,18 +689,15 @@
 
     }
 
-
     window.__allBatches =
       res.data || [];
 
   }
 
-
   function batchesFor(unit) {
 
     var today =
       todayISO();
-
 
     return (
       window.__allBatches || []
@@ -814,7 +714,6 @@
 
   }
 
-
   function batchLabel(b) {
 
     return (
@@ -827,7 +726,6 @@
 
   }
 
-
   /* ---------- 選擇單位 ---------- */
 
   async function onUnitChange() {
@@ -835,19 +733,8 @@
     var unit =
       unitSel.value;
 
-
-    /*
-      每次重新選擇分社，
-      都視為重新開始。
-    */
-
-    existingId = null;
-
     $("savedAt").textContent =
       "";
-
-    $("submitBtn").textContent =
-      "儲存申請";
 
     $("existingNotice").hidden =
       true;
@@ -855,9 +742,7 @@
     $("existingNotice").innerHTML =
       "";
 
-
     clearQty();
-
 
     if (!unit) {
 
@@ -870,14 +755,14 @@
       currentBatch =
         null;
 
+      setLocked(true);
+
       return;
 
     }
 
-
     batches =
       batchesFor(unit);
-
 
     if (!batches.length) {
 
@@ -887,14 +772,11 @@
       $("batchPickWrap").hidden =
         true;
 
-
       $("batchBar").hidden =
         false;
 
-
       $("batchBar").className =
         "batchbar closed";
-
 
       $("batchBar").innerHTML =
         "<b>目前沒有正在收單的批次</b>" +
@@ -903,10 +785,8 @@
         "請稍後再進來，或直接來電詢問。" +
         "</span>";
 
-
       $("existingNotice").hidden =
         true;
-
 
       setLocked(true);
 
@@ -914,19 +794,15 @@
 
     }
 
-
     var pick =
       $("batchPickWrap");
-
 
     var sel =
       $("batch");
 
-
     if (batches.length > 1) {
 
       sel.innerHTML = "";
-
 
       batches.forEach(function (b, i) {
 
@@ -942,7 +818,6 @@
 
       });
 
-
       pick.hidden =
         false;
 
@@ -953,13 +828,11 @@
 
     }
 
-
     await useBatch(
       batches[0]
     );
 
   }
-
 
   /* ---------- 使用批次 ---------- */
 
@@ -968,20 +841,8 @@
     currentBatch =
       b;
 
-
-    /*
-      換批次時不要自動帶舊申請。
-    */
-
-    existingId = null;
-
-
     $("savedAt").textContent =
       "";
-
-    $("submitBtn").textContent =
-      "儲存申請";
-
 
     $("existingNotice").hidden =
       true;
@@ -989,29 +850,26 @@
     $("existingNotice").innerHTML =
       "";
 
+    clearQty();
 
     var left =
       daysLeft(
         b.deadline
       );
 
-
     var leftText =
       left === 0
         ? "今天就是最後一天"
         : "還有 " + left + " 天";
 
-
     $("batchBar").hidden =
       false;
-
 
     $("batchBar").className =
       "batchbar" +
       (left <= 1
         ? " urgent"
         : "");
-
 
     $("batchBar").innerHTML =
       "<b>" +
@@ -1029,45 +887,20 @@
       rocDate(b.deadline) +
       "　" +
       leftText +
-      "，這之前都可以回來繼續填或修改。" +
+      "。" +
       "</span>";
 
-
     setLocked(false);
-
-
-    /*
-      這裡只「檢查」有沒有舊申請，
-      不會自動載入。
-    */
 
     await checkExisting();
 
   }
-
 
   /* ---------- 批次切換 ---------- */
 
   $("batch").addEventListener(
     "change",
     function () {
-
-      clearQty();
-
-      existingId = null;
-
-      $("savedAt").textContent =
-        "";
-
-      $("submitBtn").textContent =
-        "儲存申請";
-
-      $("existingNotice").hidden =
-        true;
-
-      $("existingNotice").innerHTML =
-        "";
-
 
       useBatch(
         batches[
@@ -1078,8 +911,7 @@
     }
   );
 
-
-  /* ---------- 檢查是否已有原申請 ---------- */
+  /* ---------- 檢查是否已有申請 ---------- */
 
   async function checkExisting() {
 
@@ -1088,9 +920,8 @@
       !currentBatch ||
       !unitSel.value
     ) {
-      return;
+      return false;
     }
-
 
     var res =
       await db
@@ -1106,23 +937,28 @@
         )
         .maybeSingle();
 
+    if (res.error) {
 
-    /*
-      查詢錯誤或沒有資料：
-      就保持空白，不顯示提示。
-    */
+      toast(
+        "檢查申請資料失敗：" +
+        res.error.message,
+        true
+      );
 
-    if (
-      res.error ||
-      !res.data
-    ) {
-      return;
+      return false;
+
     }
 
+    if (!res.data) {
+
+      setLocked(false);
+
+      return false;
+
+    }
 
     var r =
       res.data;
-
 
     var t =
       new Date(
@@ -1130,10 +966,8 @@
         r.created_at
       );
 
-
     $("existingNotice").hidden =
       false;
-
 
     $("existingNotice").innerHTML =
 
@@ -1156,144 +990,15 @@
 
       "</span>" +
 
-      "<button " +
-      "type=\"button\" " +
-      "class=\"ghost small\" " +
-      "id=\"loadExistingBtn\" " +
-      "style=\"margin-top:10px\">" +
+      "<span style=\"display:block;margin-top:8px\">" +
+      "如需增加、減少或更正申請內容，請洽總務課由後台修改。" +
+      "</span>";
 
-      "載入原申請" +
+    setLocked(true);
 
-      "</button>";
-
-
-    $("loadExistingBtn").addEventListener(
-      "click",
-      function () {
-
-        loadExisting(r);
-
-      }
-    );
+    return true;
 
   }
-
-
-  /* ---------- 使用者主動載入原申請 ---------- */
-
-  function loadExisting(r) {
-
-    existingId =
-      r.id;
-
-
-    /*
-      先清空目前表單，
-      再載入原申請。
-    */
-
-    clearQty();
-
-
-    /*
-      載入原申請中的品項。
-    */
-
-    (r.items || [])
-      .forEach(function (it) {
-
-        document
-          .querySelectorAll(".qty")
-          .forEach(function (q) {
-
-            if (
-              q.dataset.name ===
-              it.name
-            ) {
-
-              q.value =
-                it.qty;
-
-
-              q.parentNode.classList.add(
-                "on"
-              );
-
-
-              var detail =
-                q.closest("details");
-
-
-              if (detail) {
-                detail.open = true;
-              }
-
-            }
-
-          });
-
-      });
-
-
-    $("note").value =
-      r.note || "";
-
-
-    /*
-      使用者主動載入原申請時，
-      才把原填單人帶回來。
-    */
-
-    $("applicant").value =
-      r.applicant || "";
-
-
-    refreshCounts();
-
-
-    $("submitBtn").textContent =
-      "更新申請";
-
-
-    var t =
-      new Date(
-        r.updated_at ||
-        r.created_at
-      );
-
-
-    $("savedAt").textContent =
-
-      "　上次由 " +
-      (r.applicant || "未記載") +
-      " 存於 " +
-
-      pad(t.getMonth() + 1) +
-      "/" +
-      pad(t.getDate()) +
-      " " +
-      pad(t.getHours()) +
-      ":" +
-      pad(t.getMinutes());
-
-
-    /*
-      載入完成後把提示收起。
-    */
-
-    $("existingNotice").hidden =
-      true;
-
-    $("existingNotice").innerHTML =
-      "";
-
-
-    toast(
-      "已載入原申請，可以修改"
-    );
-
-  }
-
 
   /* ---------- 事件 ---------- */
 
@@ -1301,7 +1006,6 @@
     "change",
     onUnitChange
   );
-
 
   /* ---------- 清空 ---------- */
 
@@ -1317,9 +1021,7 @@
         return;
       }
 
-
       clearQty();
-
 
       toast(
         "數量已清空，記得按儲存"
@@ -1327,7 +1029,6 @@
 
     }
   );
-
 
   /* ---------- 儲存 ---------- */
 
@@ -1337,7 +1038,6 @@
 
       var btn =
         this;
-
 
       if (!configured) {
 
@@ -1349,7 +1049,6 @@
         return;
 
       }
-
 
       if (!unitSel.value) {
 
@@ -1363,7 +1062,6 @@
         return;
 
       }
-
 
       if (
         !$("applicant").value.trim()
@@ -1380,7 +1078,6 @@
 
       }
 
-
       if (!currentBatch) {
 
         toast(
@@ -1391,7 +1088,6 @@
         return;
 
       }
-
 
       if (
         currentBatch.deadline <
@@ -1407,14 +1103,56 @@
 
       }
 
+      /*
+        儲存前再查一次，
+        避免有人已經先填寫，
+        但目前頁面尚未更新。
+      */
+
+      var existing =
+        await db
+          .from("supply_requests")
+          .select("id")
+          .eq(
+            "batch_code",
+            currentBatch.code
+          )
+          .eq(
+            "unit_code",
+            unitSel.value
+          )
+          .maybeSingle();
+
+      if (existing.error) {
+
+        toast(
+          "檢查申請資料失敗：" +
+          existing.error.message,
+          true
+        );
+
+        return;
+
+      }
+
+      if (existing.data) {
+
+        await checkExisting();
+
+        toast(
+          "本單位已完成申請，如需修改請洽總務課",
+          true
+        );
+
+        return;
+
+      }
 
       var items =
         collect();
 
-
       var note =
         $("note").value.trim();
-
 
       if (
         !items.length &&
@@ -1430,18 +1168,14 @@
 
       }
 
-
       var label =
         btn.textContent;
-
 
       btn.disabled =
         true;
 
-
       btn.textContent =
         "儲存中…";
-
 
       var payload = {
 
@@ -1457,7 +1191,7 @@
             .trim(),
 
         apply_date:
-  todayISO(),
+          todayISO(),
 
         items:
           items,
@@ -1470,50 +1204,24 @@
 
         updated_at:
           new Date()
-            .toISOString(),
+            .toISOString()
 
       };
-
-
-      /*
-        只有「載入原申請」後，
-        才明確帶原本的 id。
-
-        如果沒有載入，
-        Supabase 仍會依照
-        batch_code + unit_code
-        的 unique conflict 更新原申請。
-      */
-
-      if (existingId) {
-
-        payload.id =
-          existingId;
-
-      }
-
 
       var res =
         await db
           .from("supply_requests")
-          .upsert(
-            payload,
-            {
-              onConflict:
-                "batch_code,unit_code"
-            }
+          .insert(
+            payload
           );
-
-
-      btn.disabled =
-        false;
-
 
       if (res.error) {
 
+        btn.disabled =
+          false;
+
         btn.textContent =
           label;
-
 
         toast(
           "儲存失敗：" +
@@ -1525,75 +1233,32 @@
 
       }
 
+      btn.disabled =
+        true;
 
-      /*
-      /*
-  儲存成功後不要直接把原申請
-  再塞回畫面。
+      btn.textContent =
+        "已完成申請";
 
-  讓畫面維持使用者剛剛送出的內容。
-*/
+      toast(
+        "已儲存，這個批次本單位只能申請一次"
+      );
 
-var wasUpdate =
-  !!existingId;
-
-
-/*
-  成功後恢復按鈕狀態。
-*/
-
-btn.disabled =
-  false;
-
-btn.textContent =
-  wasUpdate
-    ? "更新申請"
-    : "儲存申請";
-
-
-toast(
-  wasUpdate
-    ? "已更新，內容留著截止前可以再修改"
-    : "已儲存，截止前可以回來修改"
-);
-
-
-/*
-  儲存成功後重新檢查一次，
-  讓系統知道目前已有申請，
-  但不自動載入資料。
-*/
-
-existingId = null;
-
-await checkExisting();
+      await checkExisting();
 
     }
   );
-
 
   /* ---------- 啟動 ---------- */
 
   (async function init() {
 
-    /*
-      不再自動帶入：
-
-      - 上次分社
-      - 上次填單人
-      - 上次申請內容
-
-      每次開啟連結都是乾淨表單。
-    */
-
-
     await loadBatches();
-
 
     refreshCounts();
 
-  })();
+    setLocked(true);
 
+  })();
 
   /* ---------- Service Worker ---------- */
 
@@ -1606,7 +1271,6 @@ await checkExisting();
       .catch(function () {});
 
   }
-
 
 })();
 </script>

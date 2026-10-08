@@ -732,21 +732,18 @@
     /*
       單位與批次永遠可以切換。
 
-      applicant 是否鎖定，由「是否為既有申請」
-      及「填寫人是否相同」另外判斷。
+      applicant 永遠保持可輸入，
+      因為既有申請必須由使用者重新輸入填單人，
+      系統才能判斷是否可以修改。
     */
 
     $("unit").disabled = false;
 
     $("batch").disabled = false;
 
-
-    $("applicant").disabled =
-      false;
-
+    $("applicant").disabled = false;
 
     setItemLocked(locked);
-
 
     $("submitBtn").disabled =
       locked;
@@ -784,60 +781,42 @@
   }
 
 
-  /* ---------- 套用既有申請的可編輯狀態 ---------- */
+  /* ---------- 更新既有申請的可編輯狀態 ---------- */
 
   function updateExistingEditState(showToast) {
 
     if (!existingRecord) {
 
+      isEditingExisting = false;
+
       setItemLocked(false);
 
       $("submitBtn").disabled = false;
+
+      $("existingNotice").hidden = true;
 
       return;
 
     }
 
 
-    var same =
-      applicantMatchesExisting();
+    var current =
+      $("applicant")
+        .value
+        .trim();
 
 
-    if (same) {
-
-      isEditingExisting = true;
-
-      setItemLocked(false);
-
-      $("submitBtn").disabled = false;
-
-      $("existingNotice").hidden =
-        false;
+    var original =
+      (existingRecord.applicant || "")
+        .trim();
 
 
-      $("existingNotice").innerHTML =
+    /*
+      既有申請：
+      填單人尚未輸入 → 鎖定
+    */
 
-        "<b>本單位已有申請資料</b>" +
-
-        "<span style=\"display:block;margin-top:6px\">" +
-
-        "目前填單人與原填單人相同，可直接修改原申請內容。" +
-
-        "</span>" +
-
-        "<div style=\"margin-top:8px\">" +
-        "修改完成後按「儲存申請」即可更新原申請。" +
-        "</div>";
-
-      if (showToast) {
-
-        toast(
-          "填單人相同，可以直接修改原申請"
-        );
-
-      }
-
-    } else {
+    if (!current) {
 
       isEditingExisting = false;
 
@@ -845,8 +824,7 @@
 
       $("submitBtn").disabled = true;
 
-      $("existingNotice").hidden =
-        false;
+      $("existingNotice").hidden = false;
 
 
       $("existingNotice").innerHTML =
@@ -854,26 +832,100 @@
         "<b>本單位已有申請資料</b>" +
 
         "<span style=\"display:block;margin-top:6px\">" +
-
         "原填單人：" +
-        (existingRecord.applicant || "未記載") +
-
+        (original || "未記載") +
         "</span>" +
 
         "<div style=\"margin-top:8px\">" +
-
-        "目前填單人與原填單人不同，無法修改此申請。" +
-
+        "請輸入填單人姓名，系統將判斷是否可以修改原申請。" +
         "</div>";
+
+
+      return;
+
+    }
+
+
+    /*
+      已輸入，而且與原填單人完全相同
+    */
+
+    if (current === original) {
+
+      isEditingExisting = true;
+
+      setItemLocked(false);
+
+      $("submitBtn").disabled = false;
+
+      $("existingNotice").hidden = false;
+
+
+      $("existingNotice").innerHTML =
+
+        "<b>本單位已有申請資料</b>" +
+
+        "<span style=\"display:block;margin-top:6px\">" +
+        "原填單人：" +
+        (original || "未記載") +
+        "</span>" +
+
+        "<div style=\"margin-top:8px\">" +
+        "填單人與原填單人相同，可以修改原申請內容。" +
+        "</div>" +
+
+        "<div style=\"margin-top:8px\">" +
+        "修改完成後按「儲存申請」即可更新原申請。" +
+        "</div>";
+
 
       if (showToast) {
 
         toast(
-          "填單人不同，無法修改原申請",
-          true
+          "填單人相同，可以修改原申請"
         );
 
       }
+
+
+      return;
+
+    }
+
+
+    /*
+      已輸入，但與原填單人不同
+    */
+
+    isEditingExisting = false;
+
+    setItemLocked(true);
+
+    $("submitBtn").disabled = true;
+
+    $("existingNotice").hidden = false;
+
+
+    $("existingNotice").innerHTML =
+
+      "<b>本單位已有申請資料</b>" +
+
+      "<span style=\"display:block;margin-top:6px\">" +
+      "原填單人：" +
+      (original || "未記載") +
+      "</span>" +
+
+      "<div style=\"margin-top:8px\">" +
+      "目前輸入的填單人與原填單人不同，無法修改此申請。" +
+      "</div>";
+
+
+    if (showToast) {
+
+      toast(
+        "填單人不同，無法修改原申請",
+        true
+      );
 
     }
 
@@ -987,6 +1039,13 @@
 
     $("existingNotice").innerHTML =
       "";
+
+
+    /*
+      切換單位時，填單人重新變成空白。
+    */
+
+    $("applicant").value = "";
 
 
     clearQty();
@@ -1139,6 +1198,13 @@
       "";
 
 
+    /*
+      切換批次時也重新要求輸入填單人。
+    */
+
+    $("applicant").value = "";
+
+
     clearQty();
 
 
@@ -1221,6 +1287,9 @@
         "";
 
 
+      $("applicant").value = "";
+
+
       useBatch(
         batches[
           Number(this.value)
@@ -1237,6 +1306,11 @@
     "input",
     function () {
 
+      /*
+        新申請：
+        正常可以填寫。
+      */
+
       if (!existingRecord) {
 
         $("submitBtn").disabled =
@@ -1249,6 +1323,11 @@
       }
 
 
+      /*
+        既有申請：
+        每次輸入都重新判斷。
+      */
+
       updateExistingEditState(false);
 
     }
@@ -1260,7 +1339,9 @@
     function () {
 
       if (existingRecord) {
+
         updateExistingEditState(true);
+
       }
 
     }
@@ -1335,6 +1416,8 @@
         "儲存申請";
 
 
+      $("applicant").value = "";
+
       setLocked(false);
 
       return;
@@ -1354,17 +1437,10 @@
       r;
 
 
-    var t =
-      new Date(
-        r.updated_at ||
-        r.created_at
-      );
-
-
     /*
       載入原申請內容。
-      注意：這次載入後「不會直接鎖死」，
-      而是依填單人判斷能否修改。
+      這裡刻意不填入原填單人，
+      applicant 欄位必須保持空白。
     */
 
     loadExisting(r);
@@ -1372,8 +1448,9 @@
 
     /*
       載入後：
+      - applicant 空白 → 鎖定
       - 同填單人 → 可以修改
-      - 不同填單人 → 只能查看
+      - 不同填單人 → 鎖定
     */
 
     updateExistingEditState(false);
@@ -1444,8 +1521,18 @@
       r.note || "";
 
 
+    /*
+      ★ 重要：
+      既有申請時，填單人欄位保持空白。
+      不再自動帶入原填單人。
+    */
+
     $("applicant").value =
-      r.applicant || "";
+      "";
+
+
+    $("applicant").disabled =
+      false;
 
 
     /*
@@ -1507,7 +1594,7 @@
       ) {
 
         toast(
-          "填單人不同，無法修改原申請",
+          "請先輸入與原填單人相同的姓名",
           true
         );
 
@@ -1755,7 +1842,7 @@
 
         /*
           重新從資料庫讀取，
-          確認更新後內容。
+          重新進入「填單人需重新輸入」狀態。
         */
 
         await checkExisting();

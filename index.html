@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -318,6 +317,10 @@
   var currentBatch = null;
 
   var existingId = null;
+
+  var existingRecord = null;
+
+  var isEditingExisting = false;
 
 
   /* ---------- 小工具 ---------- */
@@ -699,24 +702,9 @@
   }
 
 
-  /* ---------- 鎖定／解除鎖定 ---------- */
+  /* ---------- 控制申請項目是否可修改 ---------- */
 
-  function setLocked(locked) {
-
-    /*
-      注意：
-      單位與批次「永遠不能鎖定」，
-      這樣已有申請的單位仍可切換到其他單位。
-    */
-
-    $("unit").disabled = false;
-
-    $("batch").disabled = false;
-
-
-    $("applicant").disabled =
-      locked;
-
+  function setItemLocked(locked) {
 
     document
       .querySelectorAll(".qty")
@@ -734,9 +722,167 @@
     $("clearBtn").disabled =
       locked;
 
+  }
+
+
+  /* ---------- 鎖定／解除鎖定 ---------- */
+
+  function setLocked(locked) {
+
+    /*
+      單位與批次永遠可以切換。
+
+      applicant 是否鎖定，由「是否為既有申請」
+      及「填寫人是否相同」另外判斷。
+    */
+
+    $("unit").disabled = false;
+
+    $("batch").disabled = false;
+
+
+    $("applicant").disabled =
+      false;
+
+
+    setItemLocked(locked);
+
 
     $("submitBtn").disabled =
       locked;
+
+  }
+
+
+  /* ---------- 判斷填寫人是否相同 ---------- */
+
+  function applicantMatchesExisting() {
+
+    if (!existingRecord) {
+      return false;
+    }
+
+
+    var current =
+      $("applicant")
+        .value
+        .trim();
+
+
+    var original =
+      (existingRecord.applicant || "")
+        .trim();
+
+
+    if (!current || !original) {
+      return false;
+    }
+
+
+    return current === original;
+
+  }
+
+
+  /* ---------- 套用既有申請的可編輯狀態 ---------- */
+
+  function updateExistingEditState(showToast) {
+
+    if (!existingRecord) {
+
+      setItemLocked(false);
+
+      $("submitBtn").disabled = false;
+
+      return;
+
+    }
+
+
+    var same =
+      applicantMatchesExisting();
+
+
+    if (same) {
+
+      isEditingExisting = true;
+
+      setItemLocked(false);
+
+      $("submitBtn").disabled = false;
+
+      $("existingNotice").hidden =
+        false;
+
+
+      $("existingNotice").innerHTML =
+
+        "<b>本單位已有申請資料</b>" +
+
+        "<span style=\"display:block;margin-top:6px\">" +
+
+        "目前填單人與原填單人相同，可直接修改原申請內容。" +
+
+        "</span>" +
+
+        "<div style=\"margin-top:8px\">" +
+        "修改完成後按「儲存申請」即可更新原申請。" +
+        "</div>";
+
+      if (showToast) {
+
+        toast(
+          "填單人相同，可以直接修改原申請"
+        );
+
+      }
+
+    } else {
+
+      isEditingExisting = false;
+
+      setItemLocked(true);
+
+      $("submitBtn").disabled = true;
+
+      $("existingNotice").hidden =
+        false;
+
+
+      $("existingNotice").innerHTML =
+
+        "<b>本單位已有申請資料</b>" +
+
+        "<span style=\"display:block;margin-top:6px\">" +
+
+        "原填單人：" +
+        (existingRecord.applicant || "未記載") +
+
+        "</span>" +
+
+        "<div style=\"margin-top:8px\">" +
+
+        "目前填單人與原填單人不同，無法修改此申請。" +
+
+        "</div>";
+
+      if (showToast) {
+
+        toast(
+          "填單人不同，無法修改原申請",
+          true
+        );
+
+      }
+
+    }
+
+
+    $("unit").disabled = false;
+
+    $("batch").disabled = false;
+
+    $("applicant").disabled = false;
 
   }
 
@@ -824,11 +970,17 @@
 
     existingId = null;
 
+    existingRecord = null;
+
+    isEditingExisting = false;
+
+
     $("savedAt").textContent =
       "";
 
     $("submitBtn").textContent =
       "儲存申請";
+
 
     $("existingNotice").hidden =
       true;
@@ -891,26 +1043,21 @@
         true;
 
 
-      /*
-        沒有批次時：
-        仍然允許切換單位。
-        只是其他填寫欄位暫停。
-      */
+      $("applicant").disabled =
+        true;
 
-      $("applicant").disabled = true;
 
-      document
-        .querySelectorAll(".qty")
-        .forEach(function (q) {
-          q.disabled = true;
-        });
+      setItemLocked(true);
 
-      $("note").disabled = true;
-      $("clearBtn").disabled = true;
-      $("submitBtn").disabled = true;
+      $("submitBtn").disabled =
+        true;
 
-      $("unit").disabled = false;
-      $("batch").disabled = false;
+
+      $("unit").disabled =
+        false;
+
+      $("batch").disabled =
+        false;
 
       return;
 
@@ -973,6 +1120,10 @@
 
     existingId = null;
 
+    existingRecord = null;
+
+    isEditingExisting = false;
+
 
     $("savedAt").textContent =
       "";
@@ -986,6 +1137,9 @@
 
     $("existingNotice").innerHTML =
       "";
+
+
+    clearQty();
 
 
     var left =
@@ -1048,11 +1202,17 @@
 
       existingId = null;
 
+      existingRecord = null;
+
+      isEditingExisting = false;
+
+
       $("savedAt").textContent =
         "";
 
       $("submitBtn").textContent =
         "儲存申請";
+
 
       $("existingNotice").hidden =
         true;
@@ -1066,6 +1226,42 @@
           Number(this.value)
         ]
       );
+
+    }
+  );
+
+
+  /* ---------- 填單人變更 ---------- */
+
+  $("applicant").addEventListener(
+    "input",
+    function () {
+
+      if (!existingRecord) {
+
+        $("submitBtn").disabled =
+          false;
+
+        setItemLocked(false);
+
+        return;
+
+      }
+
+
+      updateExistingEditState(false);
+
+    }
+  );
+
+
+  $("applicant").addEventListener(
+    "change",
+    function () {
+
+      if (existingRecord) {
+        updateExistingEditState(true);
+      }
 
     }
   );
@@ -1099,15 +1295,45 @@
         .maybeSingle();
 
 
-    if (
-      res.error ||
-      !res.data
-    ) {
+    if (res.error) {
+
+      toast(
+        "查詢申請資料失敗：" +
+        res.error.message,
+        true
+      );
+
+      setLocked(false);
+
+      return;
+
+    }
+
+
+    if (!res.data) {
 
       /*
         沒有既有申請：
-        確保目前畫面可以填寫。
+        正常新增。
       */
+
+      existingId = null;
+
+      existingRecord = null;
+
+      isEditingExisting = false;
+
+
+      $("existingNotice").hidden =
+        true;
+
+      $("existingNotice").innerHTML =
+        "";
+
+
+      $("submitBtn").textContent =
+        "儲存申請";
+
 
       setLocked(false);
 
@@ -1120,6 +1346,14 @@
       res.data;
 
 
+    existingId =
+      r.id;
+
+
+    existingRecord =
+      r;
+
+
     var t =
       new Date(
         r.updated_at ||
@@ -1128,51 +1362,35 @@
 
 
     /*
-      已有申請只顯示簡單提示。
-      不再把申請項目與備註列在黃色框裡。
+      載入原申請內容。
+      注意：這次載入後「不會直接鎖死」，
+      而是依填單人判斷能否修改。
     */
 
-    $("existingNotice").hidden =
-      false;
-
-
-    $("existingNotice").innerHTML =
-
-      "<b>本單位已有申請資料</b>" +
-
-      "<span style=\"display:block;margin-top:6px\">" +
-
-      "填單人：" +
-      (r.applicant || "未記載") +
-
-      "　最後更新：" +
-
-      pad(t.getMonth() + 1) +
-      "/" +
-      pad(t.getDate()) +
-      " " +
-      pad(t.getHours()) +
-      ":" +
-      pad(t.getMinutes()) +
-
-      "</span>" +
-
-      "<div style=\"margin-top:8px\">" +
-      "原申請內容已載入下方欄位並鎖定。" +
-      "</div>";
-
-
     loadExisting(r);
+
+
+    /*
+      載入後：
+      - 同填單人 → 可以修改
+      - 不同填單人 → 只能查看
+    */
+
+    updateExistingEditState(false);
 
   }
 
 
-  /* ---------- 載入原申請並鎖定 ---------- */
+  /* ---------- 載入原申請 ---------- */
 
   function loadExisting(r) {
 
     existingId =
       r.id;
+
+
+    existingRecord =
+      r;
 
 
     clearQty();
@@ -1195,7 +1413,7 @@
             ) {
 
               q.value =
-                it.qty;
+                String(it.qty);
 
 
               q.parentNode.classList.add(
@@ -1219,7 +1437,7 @@
 
 
     /*
-      備註也保留在下面原本的備註欄位。
+      備註保留。
     */
 
     $("note").value =
@@ -1228,6 +1446,18 @@
 
     $("applicant").value =
       r.applicant || "";
+
+
+    /*
+      原申請日期維持不變。
+    */
+
+    if (r.apply_date) {
+
+      $("applyDate").value =
+        rocDate(r.apply_date);
+
+    }
 
 
     refreshCounts();
@@ -1242,7 +1472,7 @@
 
     $("savedAt").textContent =
 
-      "　已由 " +
+      "　原申請由 " +
       (r.applicant || "未記載") +
       " 填寫於 " +
 
@@ -1253,31 +1483,6 @@
       pad(t.getHours()) +
       ":" +
       pad(t.getMinutes());
-
-
-    /*
-      已有申請：
-      填寫內容全部鎖定。
-      但「單位」與「批次」仍可切換。
-    */
-
-    $("unit").disabled = false;
-
-    $("batch").disabled = false;
-
-    $("applicant").disabled = true;
-
-    document
-      .querySelectorAll(".qty")
-      .forEach(function (q) {
-        q.disabled = true;
-      });
-
-    $("note").disabled = true;
-
-    $("clearBtn").disabled = true;
-
-    $("submitBtn").disabled = true;
 
   }
 
@@ -1295,6 +1500,21 @@
   $("clearBtn").addEventListener(
     "click",
     function () {
+
+      if (
+        existingRecord &&
+        !applicantMatchesExisting()
+      ) {
+
+        toast(
+          "填單人不同，無法修改原申請",
+          true
+        );
+
+        return;
+
+      }
+
 
       if (
         !confirm(
@@ -1396,36 +1616,147 @@
 
 
       /*
-        再次確認是否已有申請。
-        防止前端重複覆蓋既有資料。
+        如果目前畫面已有既有申請，
+        必須確認目前填單人與原填單人相同。
       */
 
-      var existingCheck =
-        await db
-          .from("supply_requests")
-          .select("id")
-          .eq(
-            "batch_code",
-            currentBatch.code
-          )
-          .eq(
-            "unit_code",
-            unitSel.value
-          )
-          .maybeSingle();
+      if (existingRecord) {
+
+        if (
+          !applicantMatchesExisting()
+        ) {
+
+          toast(
+            "填單人不同，無法修改原申請",
+            true
+          );
+
+          setItemLocked(true);
+
+          btn.disabled = true;
+
+          return;
+
+        }
 
 
-      if (
-        existingCheck.data
-      ) {
+        /*
+          同一填單人：
+          允許修改原申請。
+        */
+
+        var editItems =
+          collect();
+
+
+        var editNote =
+          $("note").value.trim();
+
+
+        if (
+          !editItems.length &&
+          !editNote
+        ) {
+
+          toast(
+            "還沒填任何項目",
+            true
+          );
+
+          return;
+
+        }
+
+
+        var editLabel =
+          btn.textContent;
+
+
+        btn.disabled =
+          true;
+
+
+        btn.textContent =
+          "儲存中…";
+
+
+        var updatePayload = {
+
+          applicant:
+            $("applicant")
+              .value
+              .trim(),
+
+          items:
+            editItems,
+
+          item_count:
+            editItems.length,
+
+          note:
+            editNote,
+
+          updated_at:
+            new Date()
+              .toISOString()
+
+        };
+
+
+        /*
+          修改原本那一筆資料。
+          不建立新資料。
+        */
+
+        var updateRes =
+          await db
+            .from("supply_requests")
+            .update(
+              updatePayload
+            )
+            .eq(
+              "id",
+              existingRecord.id
+            );
+
+
+        if (updateRes.error) {
+
+          btn.disabled =
+            false;
+
+          btn.textContent =
+            editLabel;
+
+
+          toast(
+            "修改失敗：" +
+            updateRes.error.message,
+            true
+          );
+
+          return;
+
+        }
+
+
+        btn.disabled =
+          false;
+
+
+        btn.textContent =
+          "已儲存";
+
 
         toast(
-          "本單位已有申請資料，如需修改請洽總務課",
-          true
+          "原申請已更新"
         );
 
-        $("unit").disabled = false;
-        $("batch").disabled = false;
+
+        /*
+          重新從資料庫讀取，
+          確認更新後內容。
+        */
 
         await checkExisting();
 
@@ -1433,6 +1764,11 @@
 
       }
 
+
+      /*
+        沒有既有申請：
+        執行新增。
+      */
 
       var items =
         collect();
@@ -1502,9 +1838,7 @@
 
 
       /*
-        只使用 INSERT。
-        不使用 upsert。
-        不允許前台覆蓋既有申請。
+        新申請只使用 INSERT。
       */
 
       var res =
@@ -1530,12 +1864,15 @@
         ) {
 
           toast(
-            "本單位已有申請資料，如需修改請洽總務課",
+            "本單位已有申請資料，請確認填單人是否與原填單人相同",
             true
           );
 
-          $("unit").disabled = false;
-          $("batch").disabled = false;
+          $("unit").disabled =
+            false;
+
+          $("batch").disabled =
+            false;
 
           await checkExisting();
 
@@ -1560,7 +1897,7 @@
 
 
       toast(
-        "已儲存申請，之後如需修改請洽總務課"
+        "已儲存申請"
       );
 
 
@@ -1601,4 +1938,3 @@
 
 </body>
 </html>
-```

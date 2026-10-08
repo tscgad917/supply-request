@@ -9,9 +9,8 @@
 //  這把 key 本來就設計成公開在網頁裡，貼上去沒關係。
 // ===================================================================
 
-const SUPABASE_URL = "https://swnkzxcrppvhsgcphnje.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_kgUc23FZ8dae85E4-on_vg_oDRYOkJO";
-
+const SUPABASE_URL = "https://onebxqajsiqmhfcizaxl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_TihaeP-c-zcnydbqeuN7_A_Qc9eL7Zq";
 // 後台管理員密碼（要換密碼改這裡的數字）
 const ADMIN_PASSWORD = "1200917";
 

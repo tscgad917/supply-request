@@ -5,22 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>傳票耗材申請</title>
 <meta name="theme-color" content="#44633F">
+
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/favicon.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="耗材申請">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link
+  href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+  rel="stylesheet"
+>
+
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header class="topbar">
-  <img src="data:image/png;base64,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" alt="" class="logo">
+
+  <img
+    src="data:image/png;base64,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"
+    alt=""
+    class="logo"
+  >
 
   <div>
     <h1>傳票耗材申請</h1>
@@ -834,16 +846,7 @@
         "<span style=\"display:block;margin-top:6px\">" +
         "原填單人：" +
         (original || "未記載") +
-        "</span>" +
-
-       $("existingNotice").innerHTML =
-
-  "<b>本單位已有申請資料</b>" +
-
-  "<span style=\"display:block;margin-top:6px\">" +
-  "原填單人：" +
-  (original || "未記載") +
-  "</span>";
+        "</span>";
 
 
       return;
@@ -1527,7 +1530,7 @@
 
 
     /*
-      ★ 重要：
+      重要：
       既有申請時，填單人欄位保持空白。
       不再自動帶入原填單人。
     */
@@ -1960,11 +1963,13 @@
             true
           );
 
+
           $("unit").disabled =
             false;
 
           $("batch").disabled =
             false;
+
 
           await checkExisting();
 

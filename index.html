@@ -1527,28 +1527,46 @@
 
 
       /*
-        儲存成功後不要直接把原申請
-        再塞回畫面。
-
-        讓畫面維持使用者剛剛送出的內容。
-      */
-
-      toast(
-        existingId
-          ? "已更新，內容留著截止前可以再修改"
-          : "已儲存，截止前可以回來修改"
-      );
-
-
       /*
-        儲存成功後重新檢查一次，
-        讓系統知道目前已有申請，
-        但不自動載入資料。
-      */
+  儲存成功後不要直接把原申請
+  再塞回畫面。
 
-      existingId = null;
+  讓畫面維持使用者剛剛送出的內容。
+*/
 
-      await checkExisting();
+var wasUpdate =
+  !!existingId;
+
+
+/*
+  成功後恢復按鈕狀態。
+*/
+
+btn.disabled =
+  false;
+
+btn.textContent =
+  wasUpdate
+    ? "更新申請"
+    : "儲存申請";
+
+
+toast(
+  wasUpdate
+    ? "已更新，內容留著截止前可以再修改"
+    : "已儲存，截止前可以回來修改"
+);
+
+
+/*
+  儲存成功後重新檢查一次，
+  讓系統知道目前已有申請，
+  但不自動載入資料。
+*/
+
+existingId = null;
+
+await checkExisting();
 
     }
   );

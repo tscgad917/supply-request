@@ -836,9 +836,14 @@
         (original || "未記載") +
         "</span>" +
 
-        "<div style=\"margin-top:8px\">" +
-        "請輸入填單人姓名，系統將判斷是否可以修改原申請。" +
-        "</div>";
+       $("existingNotice").innerHTML =
+
+  "<b>本單位已有申請資料</b>" +
+
+  "<span style=\"display:block;margin-top:6px\">" +
+  "原填單人：" +
+  (original || "未記載") +
+  "</span>";
 
 
       return;

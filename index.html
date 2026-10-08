@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -497,6 +498,7 @@
 
       nm.className = "nm";
 
+
       nm.textContent = it.n;
 
 
@@ -838,16 +840,8 @@
 
       $("existingNotice").hidden = false;
 
-
       $("existingNotice").innerHTML =
-
-        "<b>本單位已有申請資料</b>" +
-
-        "<span style=\"display:block;margin-top:6px\">" +
-        "原填單人：" +
-        (original || "未記載") +
-        "</span>";
-
+        "<b>本單位已有申請資料</b>";
 
       return;
 
@@ -868,24 +862,8 @@
 
       $("existingNotice").hidden = false;
 
-
       $("existingNotice").innerHTML =
-
-        "<b>本單位已有申請資料</b>" +
-
-        "<span style=\"display:block;margin-top:6px\">" +
-        "原填單人：" +
-        (original || "未記載") +
-        "</span>" +
-
-        "<div style=\"margin-top:8px\">" +
-        "填單人與原填單人相同，可以修改原申請內容。" +
-        "</div>" +
-
-        "<div style=\"margin-top:8px\">" +
-        "修改完成後按「儲存申請」即可更新原申請。" +
-        "</div>";
-
+        "<b>本單位已有申請資料</b>";
 
       if (showToast) {
 
@@ -913,20 +891,8 @@
 
     $("existingNotice").hidden = false;
 
-
     $("existingNotice").innerHTML =
-
-      "<b>本單位已有申請資料</b>" +
-
-      "<span style=\"display:block;margin-top:6px\">" +
-      "原填單人：" +
-      (original || "未記載") +
-      "</span>" +
-
-      "<div style=\"margin-top:8px\">" +
-      "目前輸入的填單人與原填單人不同，無法修改此申請。" +
-      "</div>";
-
+      "<b>本單位已有申請資料</b>";
 
     if (showToast) {
 
@@ -1038,6 +1004,7 @@
     $("savedAt").textContent =
       "";
 
+
     $("submitBtn").textContent =
       "儲存申請";
 
@@ -1085,6 +1052,7 @@
 
       currentBatch =
         null;
+
 
       $("batchPickWrap").hidden =
         true;
@@ -1195,6 +1163,7 @@
     $("savedAt").textContent =
       "";
 
+
     $("submitBtn").textContent =
       "儲存申請";
 
@@ -1283,6 +1252,7 @@
 
       $("savedAt").textContent =
         "";
+
 
       $("submitBtn").textContent =
         "儲存申請";
@@ -2035,3 +2005,4 @@
 
 </body>
 </html>
+```

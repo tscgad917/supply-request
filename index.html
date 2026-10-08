@@ -1,872 +1,1594 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>耗材申請</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        "Microsoft JhengHei",
-        sans-serif;
-      background: #f5f7fa;
-      color: #333;
-    }
-
-    .container {
-      max-width: 760px;
-      margin: 30px auto;
-      padding: 0 16px 40px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      margin: 0 0 22px;
-      font-size: 26px;
-      text-align: center;
-    }
-
-    h2 {
-      margin: 0 0 14px;
-      font-size: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: 600;
-    }
-
-    select,
-    input,
-    textarea,
-    button {
-      width: 100%;
-      min-height: 44px;
-      border-radius: 8px;
-      border: 1px solid #d5dbe3;
-      padding: 10px 12px;
-      font-size: 16px;
-      font-family: inherit;
-    }
-
-    select,
-    input,
-    textarea {
-      background: #fff;
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .field {
-      margin-bottom: 18px;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: #2563eb;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    button:disabled,
-    select:disabled,
-    input:disabled,
-    textarea:disabled {
-      cursor: not-allowed;
-      opacity: 0.65;
-      background: #f1f3f5;
-    }
-
-    .secondary {
-      background: #6b7280;
-    }
-
-    .batch-info {
-      padding: 14px;
-      border-radius: 8px;
-      background: #f0f7ff;
-      border: 1px solid #cfe3ff;
-      margin-bottom: 18px;
-      line-height: 1.7;
-    }
-
-    .notice {
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 18px;
-      line-height: 1.7;
-    }
-
-    .notice-info {
-      background: #fff7e6;
-      border: 1px solid #ffd591;
-    }
-
-    .notice-success {
-      background: #f0fff4;
-      border: 1px solid #b7eb8f;
-    }
-
-    .notice-title {
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .items {
-      display: grid;
-      gap: 10px;
-    }
-
-    .item-row {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .item-row:last-child {
-      border-bottom: none;
-    }
-
-    .item-name {
-      line-height: 1.5;
-    }
-
-    .item-unit {
-      color: #777;
-      font-size: 14px;
-    }
-
-    .existing-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      background: #f7f8fa;
-      border: 1px solid #e5e7eb;
-    }
-
-    .existing-item .qty {
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .existing-note {
-      margin-top: 12px;
-      padding: 10px 12px;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      white-space: pre-wrap;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .loading {
-      color: #666;
-      text-align: center;
-      padding: 15px;
-    }
-
-    .error {
-      color: #b42318;
-      background: #fff1f0;
-      border: 1px solid #ffa39e;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 18px;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        margin: 15px auto;
-      }
-
-      .card {
-        padding: 18px;
-      }
-
-      .item-row {
-        grid-template-columns: 1fr 100px;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>傳票耗材申請</title>
+<meta name="theme-color" content="#44633F">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="耗材申請">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="container">
+<header class="topbar">
+  <img src="data:image/png;base64,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" alt="" class="logo">
 
-  <div class="card">
-    <h1>耗材申請</h1>
+  <div>
+    <h1>傳票耗材申請</h1>
+    <p>115 年各分社</p>
+  </div>
 
-    <div id="errorBox" class="error hidden"></div>
+  <span class="grow"></span>
 
-    <div class="field">
-      <label for="unitSelect">請選擇單位</label>
-      <select id="unitSelect">
-        <option value="">請選擇</option>
-      </select>
-    </div>
+</header>
 
-    <div id="batchArea" class="hidden">
 
-      <div class="field">
-        <label for="batchSelect">請選擇申請批次</label>
-        <select id="batchSelect">
-          <option value="">請選擇</option>
-        </select>
-      </div>
+<div class="wrap">
 
-      <div id="batchInfo" class="batch-info hidden"></div>
+  <div id="setupNotice" class="notice" hidden>
+    還沒接上資料庫。請打開 <code>config.js</code>，把 Supabase 的網址和 anon key 貼進去。
+  </div>
 
-      <div id="existingNotice" class="notice notice-info hidden">
-        <div class="notice-title">本單位已有申請資料</div>
 
-        <div id="existingInfo"></div>
+  <section class="card">
 
-        <div style="margin-top:10px;">
-          以下為本批次目前的申請內容，僅供查看，無法於前台修改。
-        </div>
+    <div class="body">
 
-        <div style="margin-top:10px;">
-          如需增加、減少或更正申請內容，請洽總務課由後台修改。
-        </div>
-      </div>
+      <h2 class="sec">填單資料</h2>
 
-      <div id="formArea">
+      <p class="sub">
+        選好單位就會顯示這次的收單期限。
+      </p>
+
+
+      <div class="grid2">
 
         <div class="field">
-          <label for="applicant">填寫人</label>
+
+          <label class="f" for="unit">
+            填單單位 <span class="req">*</span>
+          </label>
+
+          <select id="unit" required>
+            <option value="">請選擇分社</option>
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label class="f" for="applicant">
+            填單人 <span class="req">*</span>
+          </label>
+
           <input
             type="text"
             id="applicant"
             placeholder="請輸入姓名"
+            autocomplete="name"
+            required
           >
+
         </div>
-
-        <div class="field">
-          <label>申請耗材</label>
-          <div id="itemsArea" class="items"></div>
-        </div>
-
-        <div class="field">
-          <label for="note">備註</label>
-          <textarea
-            id="note"
-            placeholder="如有其他說明請填寫"
-          ></textarea>
-        </div>
-
-        <button id="clearBtn" type="button" class="secondary">
-          清除
-        </button>
-
-        <div style="height:10px;"></div>
-
-        <button id="submitBtn" type="button">
-          送出申請
-        </button>
 
       </div>
 
-      <!-- 已存在申請時顯示的唯讀內容 -->
-      <div id="existingArea" class="hidden">
 
-        <div class="field">
-          <label>填寫人</label>
-          <input
-            type="text"
-            id="existingApplicant"
-            disabled
-          >
-        </div>
+      <div class="field" id="batchPickWrap" hidden>
 
-        <div class="field">
-          <label>申請內容</label>
-          <div id="existingItems" class="items"></div>
-        </div>
+        <label class="f" for="batch">
+          收單批次
+        </label>
 
-        <div class="field">
-          <label>備註</label>
-          <div id="existingNote" class="existing-note">無</div>
-        </div>
+        <select id="batch"></select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label class="f" for="applyDate">
+          填單日期
+        </label>
+
+        <input
+          type="text"
+          id="applyDate"
+          readonly
+        >
 
       </div>
 
     </div>
+
+
+    <div id="batchBar" class="batchbar" hidden></div>
+
+    <div id="existingNotice" class="notice" hidden></div>
+
+  </section>
+
+
+  <section class="card" id="itemCard">
+
+    <div class="body" style="padding-bottom:4px">
+
+      <h2 class="sec">
+        申請項目
+      </h2>
+
+      <p class="sub">
+        點分類展開，只要填需要的數量，其餘留空即可。
+      </p>
+
+    </div>
+
+    <div id="groups"></div>
+
+  </section>
+
+
+  <section class="card">
+
+    <div class="body">
+
+      <h2 class="sec">
+        其他項目與備註
+      </h2>
+
+      <p class="sub">
+        上面沒有列出的品項寫在這裡（請註明項目與數量）。
+        未列出項目請先來電總務課確認是否提供。
+      </p>
+
+      <textarea
+        id="note"
+        placeholder="例：放款封面 1 本"
+      ></textarea>
+
+    </div>
+
+  </section>
+
+
+  <div style="margin-top:16px;text-align:right">
+
+    <button
+      type="button"
+      class="ghost small"
+      id="clearBtn"
+    >
+      清空所有數量
+    </button>
+
   </div>
 
 </div>
 
+
+<div class="dock">
+
+  <div class="inner">
+
+    <div class="count">
+      已填
+      <b id="totalCount">0</b>
+      項
+      <span id="savedAt" class="saved"></span>
+    </div>
+
+    <button
+      type="button"
+      id="submitBtn"
+    >
+      儲存申請
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="items.js"></script>
 
+
 <script>
-  
+(function () {
 
-  const unitSelect = document.getElementById("unitSelect");
-  const batchSelect = document.getElementById("batchSelect");
-  const batchArea = document.getElementById("batchArea");
-  const batchInfo = document.getElementById("batchInfo");
-  const itemsArea = document.getElementById("itemsArea");
-  const applicant = document.getElementById("applicant");
-  const note = document.getElementById("note");
-  const clearBtn = document.getElementById("clearBtn");
-  const submitBtn = document.getElementById("submitBtn");
+  "use strict";
 
-  const existingNotice = document.getElementById("existingNotice");
-  const existingInfo = document.getElementById("existingInfo");
-  const existingArea = document.getElementById("existingArea");
-  const existingApplicant = document.getElementById("existingApplicant");
-  const existingItems = document.getElementById("existingItems");
-  const existingNote = document.getElementById("existingNote");
 
-  const errorBox = document.getElementById("errorBox");
-
-  let batches = [];
-  let currentBatch = null;
-
-  function showError(message) {
-    errorBox.textContent = message;
-    errorBox.classList.remove("hidden");
+  function $(id) {
+    return document.getElementById(id);
   }
 
-  function clearError() {
-    errorBox.textContent = "";
-    errorBox.classList.add("hidden");
+
+  /* ---------- Supabase 設定 ---------- */
+
+  function looksSet(v) {
+
+    return typeof v === "string" &&
+           v.trim() !== "" &&
+           v.indexOf("請貼上") === -1;
+
   }
+
+
+  function peek(v) {
+
+    if (typeof v !== "string" || !v.trim()) {
+      return "（空白）";
+    }
+
+    if (v.indexOf("請貼上") > -1) {
+      return "（還是原本的預設文字）";
+    }
+
+    return v.length > 40
+      ? v.slice(0, 30) + "…" + v.slice(-6)
+      : v;
+
+  }
+
+
+  var urlOK =
+    looksSet(SUPABASE_URL) &&
+    /^https?:\/\//.test(SUPABASE_URL);
+
+
+  var keyOK =
+    looksSet(SUPABASE_ANON_KEY);
+
+
+  var configured =
+    urlOK && keyOK;
+
+
+  function showSetupNotice(el) {
+
+    el.hidden = false;
+
+    el.innerHTML =
+      "<b>還沒接上資料庫。</b>瀏覽器現在讀到的 <code>config.js</code> 內容是：" +
+
+      "<div style=\"margin-top:8px;line-height:1.9\">" +
+
+      "網址：<code>" +
+      peek(SUPABASE_URL) +
+      "</code> " +
+      (urlOK
+        ? "✓"
+        : "✗ 要用 https:// 開頭的完整網址") +
+
+      "<br>金鑰：<code>" +
+      peek(SUPABASE_ANON_KEY) +
+      "</code> " +
+      (keyOK ? "✓" : "✗") +
+
+      "</div>" +
+
+      "<div style=\"margin-top:8px\">" +
+
+      "如果上面顯示的就是你貼好的值，那是瀏覽器抓到舊檔：" +
+
+      "電腦按 Ctrl+Shift+R（Mac 是 Cmd+Shift+R）強制重整，" +
+      "手機把桌面圖示刪掉重加。" +
+
+      "</div>";
+
+  }
+
+
+  var db = null;
+
+
+  if (configured) {
+
+    db =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+  } else {
+
+    showSetupNotice($("setupNotice"));
+
+  }
+
+
+  var batches = [];
+
+  var currentBatch = null;
+
+  var existingId = null;
+
+
+  /* ---------- 小工具 ---------- */
+
+  var toastTimer;
+
+
+  function toast(msg, bad) {
+
+    var t = $("toast");
+
+    t.textContent = msg;
+
+    t.className =
+      "toast show" +
+      (bad ? " bad" : "");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+      setTimeout(function () {
+        t.className = "toast";
+      }, 2800);
+
+  }
+
+
+  function pad(n) {
+
+    return (n < 10 ? "0" : "") + n;
+
+  }
+
+
+  function iso(d) {
+
+    return d.getFullYear() +
+      "-" +
+      pad(d.getMonth() + 1) +
+      "-" +
+      pad(d.getDate());
+
+  }
+
 
   function todayISO() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+
+    return iso(new Date());
+
   }
 
-  function formatDateTime(value) {
-    if (!value) return "";
 
-    const d = new Date(value);
+  function daysLeft(deadline) {
 
-    if (Number.isNaN(d.getTime())) {
-      return value;
-    }
+    var a =
+      new Date(todayISO() + "T00:00:00");
 
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const hour = String(d.getHours()).padStart(2, "0");
-    const minute = String(d.getMinutes()).padStart(2, "0");
+    var b =
+      new Date(deadline + "T00:00:00");
 
-    return `${month}/${day} ${hour}:${minute}`;
+    return Math.round(
+      (b - a) / 86400000
+    );
+
   }
 
-  function setFormLocked(locked) {
-    document.querySelectorAll("#formArea select, #formArea input, #formArea textarea")
-      .forEach(el => {
-        el.disabled = locked;
-      });
 
-    clearBtn.disabled = locked;
-    submitBtn.disabled = locked;
+  function rocDate(dateStr) {
+
+    return (
+      parseInt(
+        dateStr.slice(0, 4),
+        10
+      ) - 1911
+    ) +
+
+      "/" +
+      dateStr.slice(5, 7) +
+      "/" +
+      dateStr.slice(8, 10);
+
   }
 
-  function resetForm() {
-    applicant.value = "";
-    note.value = "";
 
-    itemsArea.innerHTML = "";
+  /* ---------- 單位下拉 ---------- */
 
-    if (typeof ITEMS !== "undefined" && Array.isArray(ITEMS)) {
-      ITEMS.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "item-row";
+  var unitSel = $("unit");
 
-        const name = document.createElement("div");
-        name.className = "item-name";
 
-        const unitText = document.createElement("div");
-        unitText.className = "item-unit";
-        unitText.textContent = item.unit || "";
+  UNITS.forEach(function (u) {
 
-        name.textContent = item.name;
-        name.appendChild(unitText);
+    var o =
+      document.createElement("option");
 
-        const select = document.createElement("select");
-        select.dataset.name = item.name;
-        select.dataset.unit = item.unit || "";
+    o.value = u;
 
-        const option = document.createElement("option");
-        option.value = "0";
-        option.textContent = "請選擇";
-        select.appendChild(option);
+    o.textContent = u;
 
-        for (let i = 1; i <= 10; i++) {
-          const opt = document.createElement("option");
-          opt.value = String(i);
-          opt.textContent = i;
-          select.appendChild(opt);
-        }
+    unitSel.appendChild(o);
 
-        row.appendChild(name);
-        row.appendChild(select);
+  });
 
-        itemsArea.appendChild(row);
-      });
-    }
 
-    existingNotice.classList.add("hidden");
-    existingArea.classList.add("hidden");
-    existingItems.innerHTML = "";
-    existingInfo.innerHTML = "";
+  $("applyDate").value =
+    rocDate(todayISO());
 
-    setFormLocked(false);
-  }
 
-  function getItemsFromForm() {
-    const result = [];
+  /* ---------- 建立摺疊選單 ---------- */
 
-    itemsArea.querySelectorAll("select").forEach(select => {
-      const qty = Number(select.value);
+  var groupsEl =
+    $("groups");
 
-      if (qty > 0) {
-        result.push({
-          name: select.dataset.name,
-          unit: select.dataset.unit,
-          qty
-        });
-      }
-    });
 
-    return result;
-  }
+  CATEGORIES.forEach(function (cat) {
 
-  function renderExistingItems(items) {
-    existingItems.innerHTML = "";
+    var d =
+      document.createElement("details");
 
-    if (!Array.isArray(items) || items.length === 0) {
-      const empty = document.createElement("div");
-      empty.textContent = "目前沒有申請耗材";
-      existingItems.appendChild(empty);
-      return;
-    }
+    d.className = "group";
 
-    items.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "existing-item";
 
-      const name = document.createElement("div");
-      name.textContent = item.name || "";
+    var s =
+      document.createElement("summary");
 
-      const unit = document.createElement("span");
-      unit.style.color = "#777";
-      unit.style.fontSize = "14px";
-      unit.textContent = item.unit ? `（${item.unit}）` : "";
 
-      name.appendChild(unit);
+    s.innerHTML =
+      '<span class="chev"></span>' +
 
-      const qty = document.createElement("div");
+      '<span>' +
+        '<span class="gname">' +
+          cat.name +
+        "</span> " +
+
+        '<span class="ghint">' +
+          cat.hint +
+        "</span>" +
+
+      "</span>" +
+
+      '<span class="gcount zero">0</span>';
+
+
+    d.appendChild(s);
+
+
+    var box =
+      document.createElement("div");
+
+    box.className = "rows";
+
+
+    cat.items.forEach(function (it) {
+
+      var row =
+        document.createElement("div");
+
+      row.className = "row";
+
+
+      var nm =
+        document.createElement("div");
+
+      nm.className = "nm";
+
+      nm.textContent = it.n;
+
+
+      var qty =
+        document.createElement("select");
+
       qty.className = "qty";
-      qty.textContent = `${item.qty || 0}`;
 
-      row.appendChild(name);
+
+      var maxQty =
+        Number(it.max || 10);
+
+
+      var placeholder =
+        document.createElement("option");
+
+      placeholder.value = "0";
+
+      placeholder.textContent =
+        "請選擇";
+
+      placeholder.selected =
+        true;
+
+      qty.appendChild(
+        placeholder
+      );
+
+
+      for (
+        var i = 1;
+        i <= maxQty;
+        i++
+      ) {
+
+        var opt =
+          document.createElement("option");
+
+        opt.value = i;
+
+        opt.textContent = i;
+
+        qty.appendChild(opt);
+
+      }
+
+
+      qty.value = "0";
+
+
+      qty.dataset.name =
+        it.n;
+
+      qty.dataset.unit =
+        it.u;
+
+
+      qty.setAttribute(
+        "aria-label",
+        it.n + " 數量"
+      );
+
+
+      var un =
+        document.createElement("span");
+
+      un.className = "unit";
+
+      un.textContent = it.u;
+
+
+      qty.addEventListener(
+        "change",
+        function () {
+
+          row.classList.toggle(
+            "on",
+            Number(qty.value) > 0
+          );
+
+          refreshCounts();
+
+        }
+      );
+
+
+      row.appendChild(nm);
+
       row.appendChild(qty);
 
-      existingItems.appendChild(row);
-    });
-  }
+      row.appendChild(un);
 
-  function renderExistingRequest(request) {
-    existingNotice.classList.remove("hidden");
-    existingArea.classList.remove("hidden");
+      box.appendChild(row);
 
-    existingInfo.innerHTML =
-      `上次填單人：${request.applicant || ""}` +
-      `<br>` +
-      `申請日期：${request.apply_date || ""}` +
-      `<br>` +
-      `最後更新：${formatDateTime(request.updated_at || request.created_at)}`;
-
-    existingApplicant.value = request.applicant || "";
-
-    renderExistingItems(request.items);
-
-    existingNote.textContent =
-      request.note && request.note.trim()
-        ? request.note
-        : "無";
-
-    setFormLocked(true);
-  }
-
-  function renderNewRequestForm() {
-    existingNotice.classList.add("hidden");
-    existingArea.classList.add("hidden");
-
-    existingInfo.innerHTML = "";
-    existingItems.innerHTML = "";
-    existingApplicant.value = "";
-    existingNote.textContent = "無";
-
-    setFormLocked(false);
-  }
-
-  async function supabaseFetch(path, options = {}) {
-    const url =
-      `${SUPABASE_URL}/rest/v1/${path}` +
-      (path.includes("?") ? "&" : "?") +
-      `apikey=${encodeURIComponent(SUPABASE_ANON_KEY)}`;
-
-    const headers = {
-      apikey: SUPABASE_ANON_KEY,
-      ...options.headers
-    };
-
-    const response = await fetch(url, {
-      ...options,
-      headers
     });
 
-    const text = await response.text();
 
-    let data = null;
+    d.appendChild(box);
 
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch {
-      data = text;
-    }
+    groupsEl.appendChild(d);
 
-    if (!response.ok) {
-      throw new Error(
-        typeof data === "string"
-          ? data
-          : data?.message || data?.hint || `HTTP ${response.status}`
-      );
-    }
+  });
 
-    return data;
-  }
 
-  async function loadUnits() {
-    clearError();
+  /* ---------- 統計 ---------- */
 
-    try {
-      const data = await supabaseFetch(
-        "units?select=id,name,code,is_active&is_active=eq.true&order=id"
-      );
+  function collect() {
 
-      unitSelect.innerHTML =
-        `<option value="">請選擇</option>`;
+    var out = [];
 
-      data.forEach(unit => {
-        if (!unit.code) return;
 
-        const option = document.createElement("option");
-        option.value = unit.code;
-        option.textContent = unit.name;
+    document
+      .querySelectorAll(".qty")
+      .forEach(function (q) {
 
-        unitSelect.appendChild(option);
+        var v =
+          Number(q.value);
+
+
+        if (v > 0) {
+
+          out.push({
+
+            name:
+              q.dataset.name,
+
+            qty:
+              v,
+
+            unit:
+              q.dataset.unit
+
+          });
+
+        }
+
       });
 
-    } catch (error) {
-      console.error(error);
-      showError("無法載入單位資料，請稍後再試。");
-    }
+
+    return out;
+
   }
 
+
+  function refreshCounts() {
+
+    var total = 0;
+
+
+    document
+      .querySelectorAll("details.group")
+      .forEach(function (d) {
+
+        var n = 0;
+
+
+        d
+          .querySelectorAll(".qty")
+          .forEach(function (q) {
+
+            if (Number(q.value) > 0) {
+              n++;
+            }
+
+          });
+
+
+        var badge =
+          d.querySelector(".gcount");
+
+
+        badge.textContent = n;
+
+
+        badge.className =
+          "gcount" +
+          (n ? "" : " zero");
+
+
+        total += n;
+
+      });
+
+
+    $("totalCount").textContent =
+      total;
+
+
+    return total;
+
+  }
+
+
+  /* ---------- 清空數量 ---------- */
+
+  function clearQty() {
+
+    document
+      .querySelectorAll(".qty")
+      .forEach(function (q) {
+
+        q.value = "0";
+
+        q.parentNode.classList.remove(
+          "on"
+        );
+
+      });
+
+
+    $("note").value = "";
+
+    refreshCounts();
+
+  }
+
+
+  /* ---------- 鎖定／解除鎖定 ---------- */
+
+  function setLocked(locked) {
+
+    $("unit").disabled = locked;
+
+    $("applicant").disabled = locked;
+
+    $("batch").disabled = locked;
+
+    document
+      .querySelectorAll(".qty")
+      .forEach(function (q) {
+
+        q.disabled = locked;
+
+      });
+
+
+    $("note").disabled =
+      locked;
+
+
+    $("clearBtn").disabled =
+      locked;
+
+
+    $("submitBtn").disabled =
+      locked;
+
+  }
+
+
+  /* ---------- 批次 ---------- */
+
   async function loadBatches() {
-    clearError();
 
-    const unitCode = unitSelect.value;
+    if (!configured) return;
 
-    batchSelect.innerHTML =
-      `<option value="">請選擇</option>`;
 
-    batchArea.classList.add("hidden");
-    batchInfo.classList.add("hidden");
+    var res =
+      await db
+        .from("supply_batches")
+        .select("*")
+        .order(
+          "deadline",
+          {
+            ascending: true
+          }
+        );
 
-    currentBatch = null;
 
-    if (!unitCode) {
+    if (res.error) {
+
+      toast(
+        "讀取批次失敗：" +
+        res.error.message,
+        true
+      );
+
+      return;
+
+    }
+
+
+    window.__allBatches =
+      res.data || [];
+
+  }
+
+
+  function batchesFor(unit) {
+
+    var today =
+      todayISO();
+
+
+    return (
+      window.__allBatches || []
+    ).filter(function (b) {
+
+      return (
+        (b.units || [])
+          .indexOf(unit) > -1
+        &&
+        b.deadline >= today
+      );
+
+    });
+
+  }
+
+
+  function batchLabel(b) {
+
+    return (
+      b.code +
+      "　" +
+      (b.route || "") +
+      "　截止 " +
+      rocDate(b.deadline)
+    );
+
+  }
+
+
+  /* ---------- 選擇單位 ---------- */
+
+  async function onUnitChange() {
+
+    var unit =
+      unitSel.value;
+
+
+    existingId = null;
+
+    $("savedAt").textContent =
+      "";
+
+    $("submitBtn").textContent =
+      "儲存申請";
+
+    $("existingNotice").hidden =
+      true;
+
+    $("existingNotice").innerHTML =
+      "";
+
+
+    clearQty();
+
+
+    if (!unit) {
+
+      $("batchBar").hidden =
+        true;
+
+      $("batchPickWrap").hidden =
+        true;
+
+      currentBatch =
+        null;
+
+      setLocked(false);
+
+      return;
+
+    }
+
+
+    batches =
+      batchesFor(unit);
+
+
+    if (!batches.length) {
+
+      currentBatch =
+        null;
+
+      $("batchPickWrap").hidden =
+        true;
+
+
+      $("batchBar").hidden =
+        false;
+
+
+      $("batchBar").className =
+        "batchbar closed";
+
+
+      $("batchBar").innerHTML =
+        "<b>目前沒有正在收單的批次</b>" +
+        "<span>" +
+        "總務課還沒開下一次收單，" +
+        "請稍後再進來，或直接來電詢問。" +
+        "</span>";
+
+
+      $("existingNotice").hidden =
+        true;
+
+
+      setLocked(true);
+
+      return;
+
+    }
+
+
+    var pick =
+      $("batchPickWrap");
+
+
+    var sel =
+      $("batch");
+
+
+    if (batches.length > 1) {
+
+      sel.innerHTML = "";
+
+
+      batches.forEach(function (b, i) {
+
+        var o =
+          document.createElement("option");
+
+        o.value = i;
+
+        o.textContent =
+          batchLabel(b);
+
+        sel.appendChild(o);
+
+      });
+
+
+      pick.hidden =
+        false;
+
+    } else {
+
+      pick.hidden =
+        true;
+
+    }
+
+
+    await useBatch(
+      batches[0]
+    );
+
+  }
+
+
+  /* ---------- 使用批次 ---------- */
+
+  async function useBatch(b) {
+
+    currentBatch =
+      b;
+
+
+    existingId = null;
+
+
+    $("savedAt").textContent =
+      "";
+
+    $("submitBtn").textContent =
+      "儲存申請";
+
+
+    $("existingNotice").hidden =
+      true;
+
+    $("existingNotice").innerHTML =
+      "";
+
+
+    var left =
+      daysLeft(
+        b.deadline
+      );
+
+
+    var leftText =
+      left === 0
+        ? "今天就是最後一天"
+        : "還有 " + left + " 天";
+
+
+    $("batchBar").hidden =
+      false;
+
+
+    $("batchBar").className =
+      "batchbar" +
+      (left <= 1
+        ? " urgent"
+        : "");
+
+
+    $("batchBar").innerHTML =
+      "<b>" +
+      b.code +
+      " 收單中" +
+      (
+        b.route
+          ? "（" + b.route + "）"
+          : ""
+      ) +
+      "</b>" +
+
+      "<span>" +
+      "截止 " +
+      rocDate(b.deadline) +
+      "　" +
+      leftText +
+      "</span>";
+
+
+    setLocked(false);
+
+
+    await checkExisting();
+
+  }
+
+
+  /* ---------- 批次切換 ---------- */
+
+  $("batch").addEventListener(
+    "change",
+    function () {
+
+      clearQty();
+
+      existingId = null;
+
+      $("savedAt").textContent =
+        "";
+
+      $("submitBtn").textContent =
+        "儲存申請";
+
+      $("existingNotice").hidden =
+        true;
+
+      $("existingNotice").innerHTML =
+        "";
+
+
+      useBatch(
+        batches[
+          Number(this.value)
+        ]
+      );
+
+    }
+  );
+
+
+  /* ---------- 檢查是否已有原申請 ---------- */
+
+  async function checkExisting() {
+
+    if (
+      !configured ||
+      !currentBatch ||
+      !unitSel.value
+    ) {
       return;
     }
 
-    try {
-      const data = await supabaseFetch(
-        "supply_batches?select=id,code,route,deadline,units,note&order=deadline.asc"
+
+    var res =
+      await db
+        .from("supply_requests")
+        .select("*")
+        .eq(
+          "batch_code",
+          currentBatch.code
+        )
+        .eq(
+          "unit_code",
+          unitSel.value
+        )
+        .maybeSingle();
+
+
+    if (
+      res.error ||
+      !res.data
+    ) {
+      return;
+    }
+
+
+    var r =
+      res.data;
+
+
+    var t =
+      new Date(
+        r.updated_at ||
+        r.created_at
       );
 
-      batches = data.filter(batch => {
-        return Array.isArray(batch.units) &&
-          batch.units.includes(unitCode);
+
+    var itemText =
+      (r.items || [])
+        .map(function (it) {
+
+          return (
+            it.name +
+            " " +
+            it.qty +
+            " " +
+            it.unit
+          );
+
+        })
+        .join("<br>");
+
+
+    if (!itemText) {
+      itemText =
+        "無列明品項";
+    }
+
+
+    $("existingNotice").hidden =
+      false;
+
+
+    $("existingNotice").innerHTML =
+
+      "<b>本單位已有申請資料</b>" +
+
+      "<div style=\"margin-top:10px;line-height:1.9\">" +
+
+      "填單人：" +
+      (r.applicant || "未記載") +
+
+      "<br>" +
+
+      "最後更新：" +
+
+      pad(t.getMonth() + 1) +
+      "/" +
+      pad(t.getDate()) +
+      " " +
+      pad(t.getHours()) +
+      ":" +
+      pad(t.getMinutes()) +
+
+      "<br><br>" +
+
+      "<b>申請項目：</b><br>" +
+
+      itemText +
+
+      (
+        r.note
+          ? "<br><br><b>備註：</b><br>" +
+            r.note
+          : ""
+      ) +
+
+      "</div>" +
+
+      "<div style=\"margin-top:10px\">" +
+      "如需增加、減少或更正，請洽總務課由後台辦理。" +
+      "</div>";
+
+
+    loadExisting(r);
+
+  }
+
+
+  /* ---------- 載入原申請並鎖定 ---------- */
+
+  function loadExisting(r) {
+
+    existingId =
+      r.id;
+
+
+    clearQty();
+
+
+    (r.items || [])
+      .forEach(function (it) {
+
+        document
+          .querySelectorAll(".qty")
+          .forEach(function (q) {
+
+            if (
+              q.dataset.name ===
+              it.name
+            ) {
+
+              q.value =
+                it.qty;
+
+
+              q.parentNode.classList.add(
+                "on"
+              );
+
+
+              var detail =
+                q.closest("details");
+
+
+              if (detail) {
+                detail.open = true;
+              }
+
+            }
+
+          });
+
       });
 
-      batchArea.classList.remove("hidden");
 
-      if (batches.length === 0) {
-        batchInfo.textContent =
-          "目前沒有正在收單的批次。總務課還沒開下一次收單，請稍後再進來，或直接來電詢問。";
+    $("note").value =
+      r.note || "";
 
-        batchInfo.classList.remove("hidden");
+
+    $("applicant").value =
+      r.applicant || "";
+
+
+    refreshCounts();
+
+
+    var t =
+      new Date(
+        r.updated_at ||
+        r.created_at
+      );
+
+
+    $("savedAt").textContent =
+
+      "　已由 " +
+      (r.applicant || "未記載") +
+      " 填寫於 " +
+
+      pad(t.getMonth() + 1) +
+      "/" +
+      pad(t.getDate()) +
+      " " +
+      pad(t.getHours()) +
+      ":" +
+      pad(t.getMinutes());
+
+
+    /*
+      已有申請：
+      前台全部鎖定。
+      修改只能由總務課後台處理。
+    */
+
+    setLocked(true);
+
+
+    toast(
+      "本單位已有申請，內容已鎖定"
+    );
+
+  }
+
+
+  /* ---------- 事件 ---------- */
+
+  unitSel.addEventListener(
+    "change",
+    onUnitChange
+  );
+
+
+  /* ---------- 清空 ---------- */
+
+  $("clearBtn").addEventListener(
+    "click",
+    function () {
+
+      if (
+        !confirm(
+          "會把這張單的數量全部清掉（要按儲存才會真的送出去），確定嗎？"
+        )
+      ) {
         return;
       }
 
-      batches.forEach(batch => {
-        const option = document.createElement("option");
-        option.value = batch.code;
 
-        option.textContent =
-          `${batch.code}｜${batch.route || ""}｜截止 ${batch.deadline}`;
+      clearQty();
 
-        batchSelect.appendChild(option);
-      });
 
-    } catch (error) {
-      console.error(error);
-      showError("無法載入申請批次，請稍後再試。");
-    }
-  }
-
-  async function checkExisting() {
-    clearError();
-
-    const unitCode = unitSelect.value;
-    const batchCode = batchSelect.value;
-
-    if (!unitCode || !batchCode) {
-      renderNewRequestForm();
-      return;
-    }
-
-    try {
-      const data = await supabaseFetch(
-        `supply_requests?select=id,batch_code,unit_code,applicant,apply_date,items,item_count,note,created_at,updated_at` +
-        `&batch_code=eq.${encodeURIComponent(batchCode)}` +
-        `&unit_code=eq.${encodeURIComponent(unitCode)}`
+      toast(
+        "數量已清空，記得按儲存"
       );
 
-      if (data.length > 0) {
-        renderExistingRequest(data[0]);
-      } else {
-        renderNewRequestForm();
-      }
-
-    } catch (error) {
-      console.error(error);
-      showError("無法確認本單位是否已申請，請稍後再試。");
     }
-  }
+  );
 
-  function showBatchInfo(batch) {
-    if (!batch) {
-      batchInfo.classList.add("hidden");
-      return;
-    }
 
-    batchInfo.innerHTML =
-      `<strong>${batch.code}</strong><br>` +
-      `路線：${batch.route || "未設定"}<br>` +
-      `截止日期：${batch.deadline}`;
+  /* ---------- 儲存 ---------- */
 
-    if (batch.note) {
-      batchInfo.innerHTML +=
-        `<br>備註：${batch.note}`;
-    }
+  $("submitBtn").addEventListener(
+    "click",
+    async function () {
 
-    batchInfo.classList.remove("hidden");
-  }
+      var btn =
+        this;
 
-  unitSelect.addEventListener("change", async () => {
-    resetForm();
-    await loadBatches();
-  });
 
-  batchSelect.addEventListener("change", async () => {
-    resetForm();
+      if (!configured) {
 
-    currentBatch =
-      batches.find(batch => batch.code === batchSelect.value) || null;
-
-    showBatchInfo(currentBatch);
-
-    if (!currentBatch) {
-      return;
-    }
-
-    await checkExisting();
-  });
-
-  clearBtn.addEventListener("click", () => {
-    if (submitBtn.disabled) return;
-
-    applicant.value = "";
-    note.value = "";
-
-    itemsArea.querySelectorAll("select").forEach(select => {
-      select.value = "0";
-    });
-  });
-
-  submitBtn.addEventListener("click", async () => {
-    clearError();
-
-    const unitCode = unitSelect.value;
-    const batchCode = batchSelect.value;
-    const applicantName = applicant.value.trim();
-
-    if (!unitCode) {
-      alert("請先選擇單位。");
-      return;
-    }
-
-    if (!batchCode) {
-      alert("請先選擇申請批次。");
-      return;
-    }
-
-    if (!applicantName) {
-      alert("請輸入填寫人姓名。");
-      applicant.focus();
-      return;
-    }
-
-    const items = getItemsFromForm();
-
-    if (items.length === 0) {
-      alert("請至少選擇一項耗材數量。");
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "確認中…";
-
-    try {
-
-      // 再確認一次，避免前台重複送出
-      const existing = await supabaseFetch(
-        `supply_requests?select=id,batch_code,unit_code,applicant,apply_date,items,item_count,note,created_at,updated_at` +
-        `&batch_code=eq.${encodeURIComponent(batchCode)}` +
-        `&unit_code=eq.${encodeURIComponent(unitCode)}`
-      );
-
-      if (existing.length > 0) {
-        renderExistingRequest(existing[0]);
-
-        alert(
-          "本單位已完成申請。\n\n" +
-          "如需增加、減少或更正申請內容，請洽總務課由後台修改。"
+        toast(
+          "尚未設定 Supabase，無法儲存",
+          true
         );
 
         return;
+
       }
 
-      submitBtn.textContent = "送出中…";
 
-      const payload = {
-        batch_code: batchCode,
-        unit_code: unitCode,
-        applicant: applicantName,
-        apply_date: todayISO(),
-        items,
-        item_count: items.length,
-        note: note.value.trim(),
-        updated_at: new Date().toISOString()
+      if (!unitSel.value) {
+
+        toast(
+          "請選擇填單單位",
+          true
+        );
+
+        unitSel.focus();
+
+        return;
+
+      }
+
+
+      if (
+        !$("applicant").value.trim()
+      ) {
+
+        toast(
+          "請填寫填單人",
+          true
+        );
+
+        $("applicant").focus();
+
+        return;
+
+      }
+
+
+      if (!currentBatch) {
+
+        toast(
+          "目前沒有可以填的批次",
+          true
+        );
+
+        return;
+
+      }
+
+
+      if (
+        currentBatch.deadline <
+        todayISO()
+      ) {
+
+        toast(
+          "這個批次已經截止了",
+          true
+        );
+
+        return;
+
+      }
+
+
+      /*
+        再次確認是否已有申請。
+        即使前端畫面狀態有問題，
+        也不能用前台覆蓋既有資料。
+      */
+
+      var existingCheck =
+        await db
+          .from("supply_requests")
+          .select("id")
+          .eq(
+            "batch_code",
+            currentBatch.code
+          )
+          .eq(
+            "unit_code",
+            unitSel.value
+          )
+          .maybeSingle();
+
+
+      if (
+        existingCheck.data
+      ) {
+
+        toast(
+          "本單位已有申請資料，如需修改請洽總務課",
+          true
+        );
+
+        setLocked(true);
+
+        await checkExisting();
+
+        return;
+
+      }
+
+
+      var items =
+        collect();
+
+
+      var note =
+        $("note").value.trim();
+
+
+      if (
+        !items.length &&
+        !note
+      ) {
+
+        toast(
+          "還沒填任何項目",
+          true
+        );
+
+        return;
+
+      }
+
+
+      var label =
+        btn.textContent;
+
+
+      btn.disabled =
+        true;
+
+
+      btn.textContent =
+        "儲存中…";
+
+
+      var payload = {
+
+        batch_code:
+          currentBatch.code,
+
+        unit_code:
+          unitSel.value,
+
+        applicant:
+          $("applicant")
+            .value
+            .trim(),
+
+        apply_date:
+          todayISO(),
+
+        items:
+          items,
+
+        item_count:
+          items.length,
+
+        note:
+          note,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
       };
 
-      await supabaseFetch(
-        "supply_requests",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify(payload)
+
+      /*
+        只使用 INSERT。
+        不使用 upsert。
+        不允許前台覆蓋既有申請。
+      */
+
+      var res =
+        await db
+          .from("supply_requests")
+          .insert(
+            payload
+          );
+
+
+      btn.disabled =
+        false;
+
+
+      if (res.error) {
+
+        btn.textContent =
+          label;
+
+
+        /*
+          若資料庫因為
+          batch_code + unit_code
+          UNIQUE 約束而拒絕，
+          代表這個單位已經填過。
+        */
+
+        if (
+          res.error.code === "23505"
+        ) {
+
+          toast(
+            "本單位已有申請資料，如需修改請洽總務課",
+            true
+          );
+
+          setLocked(true);
+
+          await checkExisting();
+
+          return;
+
         }
+
+
+        toast(
+          "儲存失敗：" +
+          res.error.message,
+          true
+        );
+
+        return;
+
+      }
+
+
+      /*
+        儲存成功後，
+        立即鎖定前台。
+      */
+
+      btn.textContent =
+        "已儲存";
+
+
+      toast(
+        "已儲存申請，之後如需修改請洽總務課"
       );
 
-      alert("申請已完成。");
-
-      submitBtn.textContent = "已完成申請";
 
       await checkExisting();
 
-    } catch (error) {
-      console.error(error);
-
-      if (
-        String(error.message).includes("duplicate") ||
-        String(error.message).includes("unique") ||
-        String(error.message).includes("23505")
-      ) {
-        await checkExisting();
-
-        alert(
-          "本單位已完成申請。\n\n" +
-          "如需增加、減少或更正申請內容，請洽總務課由後台修改。"
-        );
-      } else {
-        showError(
-          "申請送出失敗：" +
-          (error.message || "未知錯誤")
-        );
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = "送出申請";
-      }
     }
-  });
+  );
 
-  resetForm();
-  loadUnits();
+
+  /* ---------- 啟動 ---------- */
+
+  (async function init() {
+
+    await loadBatches();
+
+    refreshCounts();
+
+    /*
+      初始狀態：
+      尚未選擇單位，因此保持可操作。
+    */
+
+    setLocked(false);
+
+  })();
+
+
+  /* ---------- Service Worker ---------- */
+
+  if (
+    "serviceWorker" in navigator
+  ) {
+
+    navigator.serviceWorker
+      .register("sw.js")
+      .catch(function () {});
+
+  }
+
+
+})();
 </script>
 
 </body>
 </html>
-```
-
-### 這版實際效果
-
-例如 **0016 選擇 1151029**，如果已經有：
-
-* 櫃員機色帶(長)：4 個
-* 備註：櫃員機色帶共需8個
-* 填寫人：蔡瑩如
-
-前台會直接看到這些內容，但**不能改數量、不能改備註，也不能再次送出**。
-
-如果要改，就只會提示：
-
-> 如需增加、減少或更正申請內容，請洽總務課由後台修改。
-
-**這次只需要改 GitHub 的 `index.html`，不用改 Supabase SQL。**

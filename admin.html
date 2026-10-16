@@ -817,7 +817,35 @@
         refresh_token: refreshToken
       });
 
-      if (sessionResult.error) throw sessionResult.error;
+      // access token 或 refresh token 曾更新時，同步更新跨頁共用的登入資訊
+      if (sessionResult.error) {
+        var refreshResponse = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ refresh_token: refreshToken })
+        });
+        var refreshed = await refreshResponse.json();
+        if (!refreshResponse.ok) throw new Error(refreshed.msg || refreshed.message || "登入已失效，請重新登入");
+        token = refreshed.access_token;
+        refreshToken = refreshed.refresh_token;
+        localStorage.setItem("admin_access_token", token);
+        localStorage.setItem("admin_refresh_token", refreshToken);
+        sessionResult = await db.auth.setSession({
+          access_token: token,
+          refresh_token: refreshToken
+        });
+        if (sessionResult.error) throw sessionResult.error;
+      }
+
+      if (sessionResult.data && sessionResult.data.session) {
+        token = sessionResult.data.session.access_token;
+        refreshToken = sessionResult.data.session.refresh_token;
+        localStorage.setItem("admin_access_token", token);
+        localStorage.setItem("admin_refresh_token", refreshToken);
+      }
 
       var userResult = await db.auth.getUser();
       if (userResult.error) throw userResult.error;

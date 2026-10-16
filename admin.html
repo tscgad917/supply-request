@@ -810,72 +810,51 @@
   }
 
   async function verifyUnifiedAdmin() {
-    var token = localStorage.getItem("admin_access_token");
-    var refreshToken = localStorage.getItem("admin_refresh_token");
-    var savedEmail = (localStorage.getItem("admin_email") || "").toLowerCase();
-
     $("loginView").hidden = true;
     $("mainView").hidden = true;
 
-    if (!token || !refreshToken || savedEmail !== "tscgad917@gmail.com" || !configured || !db) {
-      var reasons = [];
-      if (!token) reasons.push("缺少 admin_access_token");
-      if (!refreshToken) reasons.push("缺少 admin_refresh_token");
-      if (savedEmail !== "tscgad917@gmail.com") reasons.push("管理員信箱不符或不存在");
-      if (!configured || !db) reasons.push("Supabase 設定未完成");
-      showUnifiedAuthError("尚未通過統一登入驗證：\n" + reasons.join("\n") + "\n\n目前不會清除登入資料或自動跳轉。請先回統一管理中心重新登入，再重試。");
+    if (!configured || !db) {
+      showUnifiedAuthError("Supabase 設定未完成，請確認 config.js。");
       return;
     }
 
     try {
-      var sessionResult = await db.auth.setSession({
-        access_token: token,
-        refresh_token: refreshToken
-      });
+      // 優先讀取統一登入入口由 Supabase JS 儲存的共用 session。
+      var sessionResult = await db.auth.getSession();
+      if (sessionResult.error) throw sessionResult.error;
+      var session = sessionResult.data && sessionResult.data.session;
 
-      // access token 或 refresh token 曾更新時，同步更新跨頁共用的登入資訊
-      if (sessionResult.error) {
-        var refreshResponse = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
-          method: "POST",
-          headers: {
-            "apikey": SUPABASE_ANON_KEY,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ refresh_token: refreshToken })
-        });
-        var refreshed = await refreshResponse.json();
-        if (!refreshResponse.ok) throw new Error(refreshed.msg || refreshed.message || "登入已失效，請重新登入");
-        token = refreshed.access_token;
-        refreshToken = refreshed.refresh_token;
-        localStorage.setItem("admin_access_token", token);
-        localStorage.setItem("admin_refresh_token", refreshToken);
-        sessionResult = await db.auth.setSession({
-          access_token: token,
-          refresh_token: refreshToken
-        });
+      // 相容舊版登入狀態：若共用 session 不存在，才嘗試既有暫存憑證。
+      if (!session) {
+        var token = localStorage.getItem("admin_access_token");
+        var refreshToken = localStorage.getItem("admin_refresh_token");
+        var savedEmail = (localStorage.getItem("admin_email") || "").toLowerCase();
+        if (!token || !refreshToken || savedEmail !== "tscgad917@gmail.com") {
+          showUnifiedAuthError("找不到統一登入的有效 session。請先至庫存盤點登入入口重新登入，再回到統一管理中心。");
+          return;
+        }
+        sessionResult = await db.auth.setSession({ access_token: token, refresh_token: refreshToken });
         if (sessionResult.error) throw sessionResult.error;
+        session = sessionResult.data && sessionResult.data.session;
       }
 
-      if (sessionResult.data && sessionResult.data.session) {
-        token = sessionResult.data.session.access_token;
-        refreshToken = sessionResult.data.session.refresh_token;
-        localStorage.setItem("admin_access_token", token);
-        localStorage.setItem("admin_refresh_token", refreshToken);
-      }
+      if (!session) throw new Error("Supabase 未回傳有效的登入 session。");
 
       var userResult = await db.auth.getUser();
       if (userResult.error) throw userResult.error;
-
       var actualEmail = (userResult.data.user.email || "").toLowerCase();
       if (actualEmail !== "tscgad917@gmail.com") {
         await db.auth.signOut();
-        throw new Error("此帳號未獲授權");
+        throw new Error("目前登入的帳號未獲授權。");
       }
 
+      localStorage.setItem("admin_access_token", session.access_token);
+      localStorage.setItem("admin_refresh_token", session.refresh_token);
+      localStorage.setItem("admin_email", actualEmail);
       unlock();
     } catch (error) {
       console.error("統一登入驗證失敗：", error);
-      showUnifiedAuthError("統一登入驗證失敗：\n" + (error && error.message ? error.message : String(error)) + "\n\n已保留登入資料供排查，請將這段錯誤訊息回報。");
+      showUnifiedAuthError("統一登入驗證失敗：\n" + (error && error.message ? error.message : String(error)) + "\n\n請確認已從統一登入入口登入；本頁不會要求再次輸入帳密。");
     }
   }
 

@@ -796,62 +796,50 @@
     );
   }
 
-  /* ---------- 登入 ---------- */
+  /* ---------- 統一登入驗證 ---------- */
 
-  function unlock() {
+  async function verifyUnifiedAdmin() {
+    var token = localStorage.getItem("admin_access_token");
+    var refreshToken = localStorage.getItem("admin_refresh_token");
+    var savedEmail = (localStorage.getItem("admin_email") || "").toLowerCase();
 
     $("loginView").hidden = true;
-    $("mainView").hidden = false;
+    $("mainView").hidden = true;
 
-    if (!configured) {
-      showSetupNotice($("setupNotice"));
+    if (!token || !refreshToken || savedEmail !== "tscgad917@gmail.com" || !configured || !db) {
+      window.location.replace("../inventory-system/admin.html");
       return;
     }
 
-    load();
-  }
+    try {
+      var sessionResult = await db.auth.setSession({
+        access_token: token,
+        refresh_token: refreshToken
+      });
 
-  $("loginBtn").addEventListener(
-    "click",
-    function () {
+      if (sessionResult.error) throw sessionResult.error;
 
-      if ($("pw").value === ADMIN_PASSWORD) {
+      var userResult = await db.auth.getUser();
+      if (userResult.error) throw userResult.error;
 
-        sess(
-          "supply-admin",
-          "1"
-        );
-
-        unlock();
-
-      } else {
-
-        toast(
-          "密碼不對",
-          true
-        );
-
-        $("pw").select();
-      }
-    }
-  );
-
-  $("pw").addEventListener(
-    "keydown",
-    function (e) {
-
-      if (e.key === "Enter") {
-        $("loginBtn").click();
+      var actualEmail = (userResult.data.user.email || "").toLowerCase();
+      if (actualEmail !== "tscgad917@gmail.com") {
+        await db.auth.signOut();
+        throw new Error("此帳號未獲授權");
       }
 
+      unlock();
+    } catch (error) {
+      console.error("統一登入驗證失敗：", error);
+      localStorage.removeItem("admin_access_token");
+      localStorage.removeItem("admin_refresh_token");
+      localStorage.removeItem("admin_email");
+      window.location.replace("../inventory-system/admin.html");
     }
-  );
-
-  if (
-    sess("supply-admin") === "1"
-  ) {
-    unlock();
   }
+
+  // 不再使用傳票耗材系統自己的獨立密碼
+  verifyUnifiedAdmin();
 
   /* ---------- 篩選器與新批次表單 ---------- */
 

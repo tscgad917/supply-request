@@ -507,6 +507,22 @@
     return document.getElementById(id);
   }
 
+  // 導覽限制：首次進入需由統一管理中心點選；同一分頁重新整理可繼續使用。
+  // 這是前端導覽限制，不取代 Supabase 的身分驗證與 RLS 權限。
+  var nav = performance.getEntriesByType("navigation")[0];
+  var isReload = nav && nav.type === "reload";
+  var ticket = sessEntryTicket();
+  sessionStorage.removeItem("voucherAdminEntryTicket");
+  if (!ticket && !(isReload && sessionStorage.getItem("voucherAdminTabAuthorized") === "yes")) {
+    document.body.innerHTML = '<main style="max-width:680px;margin:60px auto;padding:24px;font-family:Arial,sans-serif;line-height:1.8;color:#26332c"><h2>請由統一管理中心進入</h2><p>為避免直接開啟後台連結，請先返回統一管理中心，再點選「傳票耗材管理」。</p><a href="../inventory-system/admin-center.html">返回統一管理中心</a></main>';
+    return;
+  }
+  sessionStorage.setItem("voucherAdminTabAuthorized", "yes");
+
+  function sessEntryTicket() {
+    return sessionStorage.getItem("voucherAdminEntryTicket") === "from-center";
+  }
+
   var records = [];
   var batches = [];
 

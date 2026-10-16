@@ -809,6 +809,18 @@
     box.textContent = message;
   }
 
+  // 通過統一登入驗證後，顯示管理畫面並載入資料。
+  // 先前驗證流程有呼叫 unlock()，但函式本身遺漏，造成 unlock is not defined。
+  function unlock() {
+    $("loginView").hidden = true;
+    $("mainView").hidden = false;
+    load().catch(function (error) {
+      console.error("載入傳票耗材管理資料失敗：", error);
+      toast("登入成功，但載入資料時發生錯誤：" +
+        (error && error.message ? error.message : String(error)), true);
+    });
+  }
+
   async function verifyUnifiedAdmin() {
     $("loginView").hidden = true;
     $("mainView").hidden = true;

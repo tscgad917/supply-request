@@ -798,6 +798,17 @@
 
   /* ---------- 統一登入驗證 ---------- */
 
+  function showUnifiedAuthError(message) {
+    var box = document.getElementById("unifiedAuthError");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "unifiedAuthError";
+      box.style.cssText = "max-width:760px;margin:24px auto;padding:18px;background:#fff1f0;border:1px solid #d93025;border-radius:10px;color:#8b1e16;white-space:pre-wrap;line-height:1.7;font-size:14px;";
+      document.body.insertBefore(box, document.body.firstChild);
+    }
+    box.textContent = message;
+  }
+
   async function verifyUnifiedAdmin() {
     var token = localStorage.getItem("admin_access_token");
     var refreshToken = localStorage.getItem("admin_refresh_token");
@@ -807,7 +818,12 @@
     $("mainView").hidden = true;
 
     if (!token || !refreshToken || savedEmail !== "tscgad917@gmail.com" || !configured || !db) {
-      window.location.replace("../inventory-system/admin.html");
+      var reasons = [];
+      if (!token) reasons.push("缺少 admin_access_token");
+      if (!refreshToken) reasons.push("缺少 admin_refresh_token");
+      if (savedEmail !== "tscgad917@gmail.com") reasons.push("管理員信箱不符或不存在");
+      if (!configured || !db) reasons.push("Supabase 設定未完成");
+      showUnifiedAuthError("尚未通過統一登入驗證：\n" + reasons.join("\n") + "\n\n目前不會清除登入資料或自動跳轉。請先回統一管理中心重新登入，再重試。");
       return;
     }
 
@@ -859,10 +875,7 @@
       unlock();
     } catch (error) {
       console.error("統一登入驗證失敗：", error);
-      localStorage.removeItem("admin_access_token");
-      localStorage.removeItem("admin_refresh_token");
-      localStorage.removeItem("admin_email");
-      window.location.replace("../inventory-system/admin.html");
+      showUnifiedAuthError("統一登入驗證失敗：\n" + (error && error.message ? error.message : String(error)) + "\n\n已保留登入資料供排查，請將這段錯誤訊息回報。");
     }
   }
 

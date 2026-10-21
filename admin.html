@@ -858,7 +858,7 @@
         var token = localStorage.getItem("admin_access_token");
         var refreshToken = localStorage.getItem("admin_refresh_token");
         var savedEmail = (localStorage.getItem("admin_email") || "").toLowerCase();
-        if (!token || !refreshToken || savedEmail !== "tscgad917@gmail.com") {
+        if (!token || !refreshToken || !savedEmail) {
           showUnifiedAuthError("找不到統一登入的有效 session。請先至庫存盤點登入入口重新登入，再回到統一管理中心。");
           return;
         }
@@ -872,14 +872,14 @@
       var userResult = await db.auth.getUser();
       if (userResult.error) throw userResult.error;
       var actualEmail = (userResult.data.user.email || "").toLowerCase();
-      if (actualEmail !== "tscgad917@gmail.com") {
-        await db.auth.signOut();
-        throw new Error("目前登入的帳號未獲授權。");
-      }
+      var authResult = await db.from("admin_authorizations").select("email,role,is_active").eq("email", actualEmail).eq("is_active", true).maybeSingle();
+      if (authResult.error) throw authResult.error;
+      if (!authResult.data) { await db.auth.signOut(); throw new Error("目前登入的帳號未獲授權或管理權限已停用。"); }
 
       localStorage.setItem("admin_access_token", session.access_token);
       localStorage.setItem("admin_refresh_token", session.refresh_token);
       localStorage.setItem("admin_email", actualEmail);
+      localStorage.setItem("admin_role", authResult.data.role);
       unlock();
     } catch (error) {
       console.error("統一登入驗證失敗：", error);

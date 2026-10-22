@@ -871,6 +871,10 @@
 
       var userResult = await db.auth.getUser();
       if (userResult.error) throw userResult.error;
+      if (userResult.data.user.user_metadata && userResult.data.user.user_metadata.must_change_password === true) {
+        window.location.replace("https://tscgad917.github.io/inventory-system/force-change-password.html");
+        return;
+      }
       var actualEmail = (userResult.data.user.email || "").toLowerCase();
       var authResult = await db.from("admin_authorizations").select("email,role,is_active").eq("email", actualEmail).eq("is_active", true).maybeSingle();
       if (authResult.error) throw authResult.error;
